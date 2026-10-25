@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ogp</title>
+<!-- SNS用サムネイル（ogp.png）の元。1200×630 で画面写真を撮って使う。 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&display=swap">
+<style>
+:root{--bg:#F5F7FA;--navy:#203750;--accent:#28765B;--line:#DDE4EA;--research:#1F5FA6;--research-tint:#EAF1FA;--learn:#28765B;--learn-tint:#E6F3ED;--participate:#B4570F;--participate-tint:#FCEFE3}
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden}
+body{background:var(--bg);font-family:"Noto Sans JP","Yu Gothic UI","Meiryo",sans-serif;color:#263238;position:relative}
+.frame{position:absolute;inset:0;border-bottom:14px solid var(--navy)}
+.text{position:absolute;left:80px;top:64px;width:760px}
+.brand{display:flex;align-items:center;gap:14px;color:var(--navy);font-weight:700;font-size:26px;letter-spacing:.06em}
+.brand svg{width:44px;height:44px}
+h1{margin:22px 0 0;color:var(--navy);font-weight:900;font-size:112px;line-height:1.12;letter-spacing:.04em;white-space:nowrap}
+.sub{margin:16px 0 0;color:var(--navy);font-weight:700;font-size:38px}
+.catch{display:inline-block;margin:18px 0 0;color:var(--accent);font-weight:900;font-size:36px;background:linear-gradient(transparent 66%,var(--learn-tint) 66%)}
+.chips{display:flex;gap:14px;margin-top:30px}
+.chip{padding:8px 20px;border-radius:999px;border:2px solid var(--c);background:#fff;color:var(--c);font-weight:900;font-size:24px}
+.art{position:absolute;right:20px;top:110px;width:500px;height:411px}
+.art-dot{fill:var(--navy);opacity:.32}
+.art-land{fill:url(#dots);stroke:var(--navy);stroke-opacity:.22;stroke-width:1.5;stroke-linejoin:round}
+.art-doc rect{fill:#fff;stroke:var(--navy);stroke-opacity:.35;stroke-width:2}
+.art-doc path{fill:none;stroke:var(--navy);stroke-opacity:.25;stroke-width:6;stroke-linecap:round}
+.art-doc .art-check{stroke:var(--accent);stroke-opacity:.65;stroke-width:5;stroke-linejoin:round}
+.art-bars rect{fill:var(--research-tint);stroke:var(--research);stroke-opacity:.5;stroke-width:2}
+.art-bars .art-axis{fill:none;stroke:var(--navy);stroke-opacity:.3;stroke-width:2;stroke-linecap:round}
+.art-line polyline{fill:none;stroke:var(--accent);stroke-opacity:.6;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.art-line circle{fill:#fff;stroke:var(--accent);stroke-opacity:.7;stroke-width:3}
+.art-lens circle{fill:rgba(255,255,255,.35);stroke:var(--navy);stroke-opacity:.45;stroke-width:5}
+.art-lens path{fill:none;stroke:var(--navy);stroke-opacity:.45;stroke-width:9;stroke-linecap:round}
+</style>
+</head>
+<body>
+<div class="frame"></div>
+<svg class="art" viewBox="0 0 560 460" aria-hidden="true">
+  <defs><pattern id="dots" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.8" class="art-dot"/></pattern></defs>
+  <g transform="translate(200 28)">
+    <path class="art-land" d="M201,100 L226,93 L222,81 L236,74 L266,90 L287,67 L310,57 L300,38 L285,40 L241,5 L234,12 L238,33 L230,57 L211,57 L200,74Z"/>
+    <path class="art-land" d="M220,100 L232,105 L230,121 L241,145 L234,162 L222,176 L222,195 L220,209 L215,226 L218,238 L211,252 L200,257 L196,249 L188,249 L180,264 L169,264 L146,264 L144,271 L137,290 L124,290 L110,271 L116,261 L93,261 L70,268 L55,280 L30,280 L32,268 L63,242 L78,242 L97,240 L116,242 L127,235 L141,211 L142,200 L152,195 L148,209 L171,202 L184,185 L194,169 L201,147 L203,128 L209,107Z"/>
+    <path class="art-land" d="M63,302 L68,309 L84,292 L93,297 L103,283 L101,273 L82,268 L68,276 L59,292Z"/>
+    <path class="art-land" d="M30,280 L46,287 L49,306 L40,340 L27,349 L17,342 L21,323 L17,309 L6,297 L11,287 L21,287Z"/>
+  </g>
+  <g class="art-line"><polyline points="262,432 302,418 342,424 382,400 422,406 462,382 502,370 538,352"/><circle cx="302" cy="418" r="4.5"/><circle cx="382" cy="400" r="4.5"/><circle cx="462" cy="382" r="4.5"/><circle cx="538" cy="352" r="5.5"/></g>
+  <g class="art-lens"><circle cx="428" cy="198" r="50"/><path d="M464 234l34 34"/></g>
+</svg>
+<div class="text">
+  <div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#203750"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M19.6 19.6 25 25" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M11 17.2v-2.6M14 17.2v-5.4M17 17.2v-3.8" stroke="#8FD9B8" stroke-width="2" stroke-linecap="round"/></svg>yumaki5555.github.io</div>
+  <h1>日本を知る。</h1>
+  <p class="sub">数字と地図で見る、私たちの社会。</p>
+  <p class="catch">知ることから、はじめよう。</p>
+  <div class="chips">
+    <span class="chip" style="--c:var(--research)">調べる・比較する</span>
+    <span class="chip" style="--c:var(--learn)">図で学ぶ</span>
+    <span class="chip" style="--c:var(--participate)">声を届ける</span>
+  </div>
+</div>
+</body>
+</html>
