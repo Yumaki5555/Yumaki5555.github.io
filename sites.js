@@ -61,6 +61,15 @@ window.SITES = [
     pair: { id: "mosque-guide", label: "まずは図で知りたい方はこちら" }
   },
   {
+    id: "kansensho",
+    category: "research",
+    name: "日本の感染症を知る",
+    url: "https://yumaki5555.github.io/kansensho/",
+    desc: "HIV/エイズ・梅毒・はしか・結核は、増えている？減っている？ 国の公式資料をもとに、10年の動きや2026年の最新状況をグラフで比べられます。",
+    icon: "pulse",
+    checkUpdate: true
+  },
+  {
     id: "mosque-guide",
     category: "learn",
     name: "日本のモスクを知る",

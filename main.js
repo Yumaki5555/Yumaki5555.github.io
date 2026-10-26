@@ -15,6 +15,7 @@
     pie: '<path d="M11 4.5a8 8 0 1 0 8.5 8.5H11z"/><path d="M14 3.5a7 7 0 0 1 6.5 6.5H14z"/>',
     bubble: '<path d="M4 5h16v11h-9.5L6 20v-4H4z"/><path d="M8 9h8M8 12.3h5"/>',
     pen: '<path d="M3.5 20.5h17"/><path d="M14.5 4.5l4 4-8.5 8.5H6v-4z"/>',
+    pulse: '<path d="M3 12.5h4.5l2.2-5 4.4 10 2.2-5H21"/>',
     external: '<path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/>'
   };
 
