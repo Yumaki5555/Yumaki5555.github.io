@@ -66,9 +66,9 @@ window.SITES = [
   {
     id: "kansensho",
     category: "research",
-    name: "日本の感染症を知る",
+    name: "世界の感染症と日本の水際対策",
     url: "https://yumaki5555.github.io/kansensho/",
-    desc: "HIV/エイズ・梅毒・はしか・結核は、増えている？減っている？ 国の公式資料をもとに、10年の動きや2026年の最新状況をグラフで比べられます。",
+    desc: "HIV・梅毒・はしか・結核は、どの国で多い？ 外国人材の協力覚書や入国前の検査、国内の患者数や治療費を、公的資料のグラフと表で比べられます。",
     icon: "pulse",
     checkUpdate: true
   },
