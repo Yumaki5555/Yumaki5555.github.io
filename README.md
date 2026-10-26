@@ -25,9 +25,13 @@
   name: "サイト名",
   url: "https://～",
   desc: "2〜3行の紹介文",
-  icon: "bars"                  // main.js の ICONS にある名前
+  icon: "bars",                 // main.js の ICONS にある名前
+  // ほかの方のサイトなら、運営者を明記する（カードに「運営：〇〇さん／X：@〇〇」と出ます）
+  operator: { name: "〇〇さん", x: "https://x.com/〇〇" }
 }
 ```
+
+`sites.js`・`main.js`・`style.css` を直したら、`index.html` の `?v=日付` も書きかえる（見る人のブラウザに古いファイルが残らないように）。
 
 ## ページ更新日について
 

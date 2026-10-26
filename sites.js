@@ -6,6 +6,7 @@
 // pair     … 「詳しく調べる版」と「図で学ぶ版」をつなぐ案内（相手の id と、案内の言葉）
 // checkUpdate … true にすると、そのサイトのページ更新日を読み取って表示します
 //               （読み取れるのは yumaki5555.github.io のサイトだけです）
+// operator … ほかの方が運営しているサイトの、運営者の名前と X（旧Twitter）のアドレス
 
 // 分類の名前（カードの上に小さく出ます）。分類の見出しと説明文は index.html に書いています。
 window.CATEGORIES = [
@@ -21,7 +22,8 @@ window.SITES = [
     name: "政策ログJP",
     url: "https://policy-log.jp/",
     desc: "国の政策や法案は、今どこまで進んでいる？ 政策の動きや進捗を調べるためのサイトです。",
-    icon: "timeline"
+    icon: "timeline",
+    operator: { name: "Policy-log.jpさん", x: "https://x.com/watermark_hd1" }
   },
   {
     id: "zititai-karte",
@@ -29,7 +31,8 @@ window.SITES = [
     name: "自治体カルテ",
     url: "https://www.zititai-karte.com/",
     desc: "自分のまちのお金は、どこから入り、何に使われている？ 自治体の財政状況をグラフやデータで調べ、比較できます。",
-    icon: "cityhall"
+    icon: "cityhall",
+    operator: { name: "自治体カルテさん", x: "https://x.com/zititai_karte" }
   },
   {
     id: "zairyu",

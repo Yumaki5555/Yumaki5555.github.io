@@ -48,6 +48,17 @@
           "</a>" +
         "</div>";
     }
+    var credit = "";
+    if (site.operator) {
+      var handle = site.operator.x.replace(/^https?:\/\/(x|twitter)\.com\//, "@");
+      credit =
+        '<p class="card-credit">' +
+          "<span>運営：" + esc(site.operator.name) + "</span>" +
+          '<span>X：<a href="' + esc(site.operator.x) + '" target="_blank" rel="noopener noreferrer">' +
+            esc(handle) + '<span class="sr-only">（新しいタブで開きます）</span>' +
+          "</a></span>" +
+        "</p>";
+    }
     return (
       '<article class="card cat-' + esc(site.category) + '" id="site-' + esc(site.id) + '">' +
         '<div class="card-head">' +
@@ -57,6 +68,7 @@
         "</div>" +
         '<h3 class="card-title">' + esc(site.name) + "</h3>" +
         '<p class="card-desc">' + esc(site.desc) + "</p>" +
+        credit +
         (site.checkUpdate ? '<p class="card-updated" data-update-url="' + esc(site.url) + '" hidden></p>' : "") +
         pair +
         '<div class="card-foot">' +
