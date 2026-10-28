@@ -256,3 +256,9 @@
 @media (max-width: 639px) {
   main:has(.area[data-mode="view"]) .hero-lead { display: none; }
 }
+
+/* 「大阪府 ＞ 大阪市」が名前の途中で折り返さないように */
+.crumb-pref, .crumb-now { white-space: nowrap; }
+@media (max-width: 639px) {
+  .area-current-name .crumb-pref { font-size: .82em; }
+}
