@@ -150,6 +150,8 @@ section[id] { scroll-margin-top: calc(var(--header-h) + 8px); }
   background: linear-gradient(transparent 68%, var(--learn-tint) 68%);
 }
 .hero-lead { margin: 14px 0 0; max-width: 34em; font-size: 1.05rem; }
+.hero-total { margin: 8px 0 0; font-size: 1.05rem; color: var(--navy); }
+.hero-total strong { font-weight: 900; }
 
 .hero-art { display: block; width: 100%; height: auto; }
 .art-dot { fill: var(--navy); opacity: .32; }
@@ -216,32 +218,43 @@ section[id] { scroll-margin-top: calc(var(--header-h) + 8px); }
 }
 .section-head p { margin: 6px 0 0; max-width: 42em; color: var(--muted); font-size: 1.02rem; }
 
-.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.count-pill {
+  display: inline-block; margin-left: 10px; padding: 2px 12px; vertical-align: .25em;
+  border-radius: 999px; background: var(--tint); color: var(--c);
+  font-size: .95rem; font-weight: 700; line-height: 1.6; white-space: nowrap;
+}
+
+/* カードの中身は「名前・画面例・問いかけ・説明・補足・ボタン」の6段。
+   同じ行のカードどうしで各段の高さをそろえる（subgrid）ので、画像とボタンの位置が横一列にそろう */
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 20px; row-gap: 0; }
 @media (max-width: 1023px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .cards { grid-template-columns: minmax(0, 1fr); } }
 
 .card {
   position: relative;
-  display: flex; flex-direction: column; gap: 12px;
-  padding: 22px;
+  display: grid; grid-template-rows: subgrid; grid-row: span 6; row-gap: 12px;
+  margin-bottom: 20px; padding: 20px;
   background: var(--white);
   border: 1px solid var(--line); border-radius: var(--radius);
   transition: border-color .15s, box-shadow .15s, transform .15s;
 }
 .card:hover { border-color: var(--c); box-shadow: 0 8px 22px rgba(32, 55, 80, .10); transform: translateY(-2px); }
 .card:focus-within { border-color: var(--c); }
-.card-head { display: flex; align-items: center; gap: 12px; }
-.card-icon {
-  display: grid; place-items: center; flex: none;
-  width: 52px; height: 52px; border-radius: 12px;
-  background: var(--tint); color: var(--c);
+.card-title { margin: 0; color: var(--navy); font-size: 1.25rem; font-weight: 700; line-height: 1.45; align-self: end; }
+.card-shot {
+  aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg-sub);
 }
-.card-icon .ico { width: 28px; height: 28px; }
-.card-cat { font-size: .88rem; font-weight: 700; color: var(--c); letter-spacing: .04em; line-height: 1.4; }
-.card-ext { margin-left: auto; color: var(--muted); display: flex; }
-.card-ext .ico { width: 20px; height: 20px; }
-.card-title { margin: 4px 0 0; color: var(--navy); font-size: 1.3rem; font-weight: 700; line-height: 1.45; }
+.card-shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .25s; }
+.card:hover .card-shot img { transform: scale(1.03); }
+.card-q { margin: 0; color: var(--c); font-size: 1.06rem; font-weight: 700; line-height: 1.6; }
 .card-desc { margin: 0; font-size: 1rem; line-height: 1.8; }
+.card-extra { display: flex; flex-direction: column; gap: 10px; }
+.card-highlight {
+  margin: 0; padding: 6px 12px; border-radius: 8px;
+  background: var(--tint); color: var(--text);
+  font-size: .95rem; font-weight: 700; line-height: 1.6;
+}
 .card-updated { margin: 0; font-size: .92rem; color: var(--muted); }
 .card-credit { display: flex; flex-direction: column; margin: 0; font-size: .95rem; line-height: 1.7; color: var(--muted); }
 .card-credit a { position: relative; z-index: 2; color: var(--navy); font-weight: 700; text-underline-offset: 3px; }
@@ -264,7 +277,7 @@ section[id] { scroll-margin-top: calc(var(--header-h) + 8px); }
 .pair-link:hover { color: var(--research); }
 
 /* 行動ボタン：9枚すべて同じ見た目・文言・位置 */
-.card-foot { margin-top: auto; padding-top: 6px; }
+.card-foot { align-self: end; }
 .btn-site {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; height: 54px; padding: 0 16px;
@@ -358,3 +371,5 @@ section[id] { scroll-margin-top: calc(var(--header-h) + 8px); }
   *, *::before, *::after { transition: none !important; }
   .hero-btn:hover, .card:hover { transform: none; }
 }
+
+.nowrap { white-space: nowrap; }

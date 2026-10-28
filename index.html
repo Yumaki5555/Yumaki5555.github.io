@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>日本を知る。｜数字と地図で見る、私たちの社会。</title>
-<meta name="description" content="国の政策、自治体の財政、外国人統計、地域の施設、市民参加。公開情報をもとに、日本の「いま」を調べ、考え、行動するためのサイトを集めた入口です。">
+<meta name="description" content="国の政策、海外との協定、自治体の財政、外国人統計、地域の施設、市民参加。公開情報をもとに、日本の「いま」を調べ、考え、行動するためのサイトを集めた入口です。">
 <link rel="canonical" href="https://yumaki5555.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="日本を知る。">
 <meta property="og:title" content="日本を知る。｜数字と地図で見る、私たちの社会。">
-<meta property="og:description" content="国の政策、自治体の財政、外国人統計、地域の施設、市民参加。公開情報をもとに、日本の「いま」を調べ、考え、行動するためのサイトを集めた入口です。">
+<meta property="og:description" content="国の政策、海外との協定、自治体の財政、外国人統計、地域の施設、市民参加。公開情報をもとに、日本の「いま」を調べ、考え、行動するためのサイトを集めた入口です。">
 <meta property="og:url" content="https://yumaki5555.github.io/">
 <meta property="og:image" content="https://yumaki5555.github.io/ogp.png">
 <meta property="og:image:width" content="1200">
@@ -23,9 +23,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
 <!-- ?v= の日付は、style.css・sites.js・main.js を直したら書きかえる（古いファイルが残らないように） -->
-<link rel="stylesheet" href="style.css?v=20261026">
-<script src="sites.js?v=20261026b" defer></script>
-<script src="main.js?v=20261026" defer></script>
+<link rel="stylesheet" href="style.css?v=20261028">
+<script src="sites.js?v=20261028" defer></script>
+<script src="main.js?v=20261028" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
@@ -61,6 +61,7 @@
         <p class="hero-sub">数字と地図で見る、私たちの社会。</p>
         <p class="hero-catch">知ることから、はじめよう。</p>
         <p class="hero-lead">国の政策、自治体の財政、外国人統計、地域の施設、市民参加。<br class="br-wide">公開情報をもとに、日本の「いま」を調べ、考え、行動するための情報サイトです。</p>
+        <p class="hero-total"><strong><span data-count="all">11</span>のサイト</strong>を、目的別に紹介しています。</p>
       </div>
       <!-- 飾りの線画（実際の数値は表していません） -->
       <svg class="hero-art" viewBox="0 0 560 460" aria-hidden="true" focusable="false">
@@ -99,17 +100,17 @@
       <nav class="hero-actions" aria-label="目的から選ぶ">
         <a class="hero-btn cat-research" href="#research">
           <span class="hb-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg></span>
-          <span class="hb-text"><span class="hb-label">調べる・比較する</span><span class="hb-sub">データと地図で詳しく</span></span>
+          <span class="hb-text"><span class="hb-label">調べる・比較する</span><span class="hb-sub">データと地図で詳しく・<span class="nowrap"><span data-count="research">7</span>サイト</span></span></span>
           <svg class="ico hb-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
         </a>
         <a class="hero-btn cat-learn" href="#learn">
           <span class="hb-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 5.5c3-1 6-1 8.5 1 2.5-2 5.5-2 8.5-1v13c-3-1-6-1-8.5 1-2.5-2-5.5-2-8.5-1z"/><path d="M12 6.5v13"/></svg></span>
-          <span class="hb-text"><span class="hb-label">図で学ぶ</span><span class="hb-sub">図やクイズでやさしく</span></span>
+          <span class="hb-text"><span class="hb-label">図で学ぶ</span><span class="hb-sub">図やクイズでやさしく・<span class="nowrap"><span data-count="learn">2</span>サイト</span></span></span>
           <svg class="ico hb-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
         </a>
         <a class="hero-btn cat-participate" href="#participate">
           <span class="hb-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>
-          <span class="hb-text"><span class="hb-label">声を届ける</span><span class="hb-sub">意見募集や署名を探す</span></span>
+          <span class="hb-text"><span class="hb-label">声を届ける</span><span class="hb-sub">意見募集や署名を探す・<span class="nowrap"><span data-count="participate">2</span>サイト</span></span></span>
           <svg class="ico hb-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
         </a>
       </nav>
@@ -121,8 +122,8 @@
       <div class="section-head">
         <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg></span>
         <div>
-          <h2 id="h-research">調べる・比較する</h2>
-          <p>政策の進み具合、自治体のお金、外国人の数、地域の施設、感染症の広がりを、データと地図で詳しく調べられます。</p>
+          <h2 id="h-research"><span class="nowrap">調べる・比較する</span><span class="count-pill"><span data-count="research">7</span>サイト</span></h2>
+          <p>政策の進み具合、海外との協定、自治体のお金、外国人の数、地域の施設、感染症の広がりを、データと地図で詳しく調べられます。</p>
         </div>
       </div>
       <div class="cards" data-category="research"></div>
@@ -134,7 +135,7 @@
       <div class="section-head">
         <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 5.5c3-1 6-1 8.5 1 2.5-2 5.5-2 8.5-1v13c-3-1-6-1-8.5 1-2.5-2-5.5-2-8.5-1z"/><path d="M12 6.5v13"/></svg></span>
         <div>
-          <h2 id="h-learn">わかりやすく学ぶ</h2>
+          <h2 id="h-learn"><span class="nowrap">わかりやすく学ぶ</span><span class="count-pill"><span data-count="learn">2</span>サイト</span></h2>
           <p>図やグラフ、クイズを使って、はじめての人にもわかりやすく紹介しているサイトです。</p>
         </div>
       </div>
@@ -147,7 +148,7 @@
       <div class="section-head">
         <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>
         <div>
-          <h2 id="h-participate">声を届ける・参加する</h2>
+          <h2 id="h-participate"><span class="nowrap">声を届ける・参加する</span><span class="count-pill"><span data-count="participate">2</span>サイト</span></h2>
           <p>意見を募集している案件や署名活動を探して、自分の考えを届けられます。</p>
         </div>
       </div>
@@ -196,7 +197,7 @@
         <p>掲載されている情報の時点や調査範囲、出典は各サイトで確認してください。</p>
         <p>情報の正確性には配慮していますが、更新時期や掲載条件などによって、実際の状況と異なる場合があります。</p>
         <p>各サイトの情報を利用する際は、出典と更新日を確認し、ご自身で判断してください。</p>
-        <p class="policy-note">カードの「ページ更新日」は、そのサイトのページが最後に公開された日を自動で読み取って表示しています。読み取れないサイトには表示していません。</p>
+        <p class="policy-note">カードの画面例は、2026年10月28日に各サイトを撮影した実際の画面です。件数などの数字は撮影した時点のもので、最新の内容は各サイトで確認してください。<br>カードの「ページ更新日」は、そのサイトのページが最後に公開された日を自動で読み取って表示しています。読み取れないサイトには表示していません。</p>
       </div>
     </div>
   </section>
@@ -221,7 +222,7 @@
     </nav>
   </div>
   <div class="wrap">
-    <p class="footer-bottom">このページの更新：2026年10月25日</p>
+    <p class="footer-bottom">このページの更新：2026年10月28日</p>
   </div>
 </footer>
 
