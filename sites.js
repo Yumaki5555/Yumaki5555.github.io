@@ -50,6 +50,18 @@ window.SITES = [
     operator: { name: "自治体カルテさん", x: "https://x.com/zititai_karte" }
   },
   {
+    id: "tabunka-yosan",
+    category: "research",
+    name: "全国 多文化共生予算マップ",
+    url: "https://yumaki5555.github.io/tabunka-yosan/",
+    q: "あなたの自治体は、多文化共生に何にいくら使っている？",
+    desc: "日本語教室・相談窓口・学校での日本語指導などの予算と決算を、地図や自治体名から検索。国・県・自治体の財源の内訳や、ほかの自治体・過去の年度との比較も見られます（調べた自治体から順に公開中）。",
+    shot: "img/shots/tabunka-yosan.webp",
+    alt: "全国 多文化共生予算マップの浜松市のページ。2026年度当初予算の多文化共生の直接関連事業の合計3億4,976.7万円と、財源の内訳・外国人住民数が並んでいる",
+    highlight: "「3分でわかる」：5つの図で予算の仕組みを解説",
+    checkUpdate: true
+  },
+  {
     id: "zairyu",
     category: "research",
     name: "数でみる在留外国人",
