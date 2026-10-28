@@ -78,6 +78,7 @@
     pubCity: function () { return once("pubCity", function () { return getEmbedded(GH + "pubcome/city/", "data"); }); },
     pubCounts: function () { return once("pubCounts", function () { return getJSON(GH + "pubcome/counts.json"); }); },
     shomei: function () { return once("shomei", function () { return getEmbedded(GH + "shomei/", "data"); }); },
+    mou: function () { return once("mou", function () { return getJSON(GH + "mou-map/data/build/summary.json"); }); },
     mosque: function () {
       return once("mosque", function () {
         return fetch(GH + "mosque-map/mosque_locations.csv").then(function (r) {
@@ -408,21 +409,47 @@
         return { href: base + "pref/" + prefCode6(a.pref), scope: "exact", scopeText: prefName(a) + "のページを開きます（最新年度の決算）", stat: null };
       },
 
-      // MOU・協定マップ：#/pref/<2けた>。市区町村ごとのページはないので、市区町村を選んだときも都道府県のページ
+      // MOU・協定マップ：都道府県は #/pref/<2けた>、市区町村は #/city/<6けた>
+      // 市区町村は政令指定都市20市しか調べていないので、それ以外は「未調査」とし、都道府県のページへ案内する
+      // 数は、サイトが公開している件数のまとめ（data/build/summary.json。画面と同じ数え方）の「MOUのみ」を、有効性ごとに分けて出す
       mou: function (a) {
         var base = GH + "mou-map/";
-        var href = base + "#/pref/" + a.pref;
-        if (a.muni) {
-          return {
-            href: href, scope: "wider",
-            scopeText: prefName(a) + "のページを開きます（市区町村ごとのページはありません。県と県内の市区町村の協定がまとめて載っています）",
-            stat: null
-          };
-        }
-        return { href: href, scope: "exact", scopeText: prefName(a) + "のページを開きます（県と県内の市区町村の協定）", stat: null };
+        var prefURL = base + "#/pref/" + a.pref;
+        return load.mou().then(function (S) {
+          var L = S.labels || {};
+          var when = "同じ協定の更新は1件として数え、報道のみの情報は含みません（" + jdate(S.generated) + "時点の判定）。";
+          function counts(c, who) {
+            var m = c.mou;
+            var rest = ["unconfirmed", "ended_confirmed", "signed_not_started", "planned"].filter(function (k) { return m[k]; })
+              .map(function (k) { return (L[k] || k) + " " + num(m[k]) + "件"; }).join("・");
+            return {
+              value: (L.valid_confirmed || "有効確認") + " " + num(m.valid_confirmed) + "<small>件</small>",
+              note: who + "が結んだMOUのうち、今も有効と公式資料で確認できたもの。" + (rest ? "ほかに " + rest + "（有効性未確認は、終了したという意味ではありません）。" : "") + when
+            };
+          }
+          if (a.muni) {
+            var cm = S.municipalities && S.municipalities[a.muni.code];
+            if (!cm) {
+              return {
+                href: prefURL, scope: "wider",
+                scopeText: prefName(a) + "のページを開きます（" + a.muni.name + "の協定はまだ調べていません）",
+                stat: { value: "未調査", note: "市区町村の協定は、政令指定都市20市の外国人材・労働分野だけを調べています。" + a.muni.name + "はまだ調べていません（0件ではありません）。" }
+              };
+            }
+            var st = counts(cm.counts, a.muni.name);
+            st.note = "調査：" + ((S.survey_labels || {})[cm.survey] || cm.survey) + (cm.checked ? "（" + jdate(cm.checked) + "確認）" : "") + "。" + st.note;
+            return { href: base + "#/city/" + a.muni.code, scope: "exact", scopeText: a.muni.name + "のページを開きます", stat: st };
+          }
+          var cp = S.prefectures && S.prefectures[a.pref];
+          if (!cp) return { href: prefURL, scope: "exact", scopeText: prefName(a) + "のページを開きます", stat: null };
+          var sp = counts(cp.counts, prefName(a));
+          sp.note += "県内の市区町村が結んだ協定は含みません。";
+          return { href: prefURL, scope: "exact", scopeText: prefName(a) + "のページを開きます", stat: sp };
+        });
       },
 
-      // パブコメ掲示板：pref/?pref=都道府県名、city/?pref=…&city=市区名（市区は105か所だけ。対象外の名前を渡すと全件が出るので、先に確かめる）
+      // パブコメ掲示板：pref/?pref=都道府県名、city/?pref=…&city=市区名
+      // 市区は105か所だけ。対象外の市区は、県の募集を見られるよう県のページへ案内する
       pubcome: function (a) {
         var base = GH + "pubcome/";
         var t = today();
@@ -472,8 +499,8 @@
         });
       },
 
-      // 署名掲示板：?pref=短い都道府県名（東京・大阪…）。署名は都道府県単位でしか分けていない。
-      // 掲載中の署名がない県を渡すと全件が出てしまうので、そのときはトップへ案内する
+      // 署名掲示板：?pref=都道府県名（「東京」「東京都」どちらでも可）。署名は都道府県単位でしか分けていない。
+      // 掲載中の署名がない県も、サイトが「0件です」と表示するので、その県を選んだ状態で開く
       shomei: function (a) {
         var base = GH + "shomei/";
         return load.shomei().then(function (D) {
@@ -484,13 +511,6 @@
           var short = prefShort(a);
           var n = live.filter(function (i) { return i.pref === short; }).length;
           var others = "地域が書かれていない署名（全国向けなど）は " + num(none) + "件で、トップから見られます。";
-          if (n === 0) {
-            return {
-              href: base, scope: "top",
-              scopeText: prefName(a) + "に関係する署名は掲載されていないため、トップを開きます（地域は引き継がれません）",
-              stat: { value: prefName(a) + " 0<small>件</small>", note: when + others }
-            };
-          }
           return {
             href: base + "?pref=" + encodeURIComponent(short) + "#results",
             scope: a.muni ? "wider" : "exact",
