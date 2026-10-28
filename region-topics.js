@@ -468,8 +468,9 @@
           var po = PD.officials.find(function (o) { return o.name === pn; });
           var pc = open(PD.items, function (i) { return i.body === pn; });
           var when = "集計：" + jdate(PD.updated) + "（毎朝更新）。";
-          var natTxt = nat == null ? "" : "国 " + num(nat) + "件";
-          var prefTxt = po && po.error ? pn + "（今日は取得できず）" : pn + " " + num(pc.n) + "件";
+          // 「大阪府の募集」＝府そのものの意見募集（府内の市区町村の分は含まない）
+          var natTxt = nat == null ? "" : "国の募集 " + num(nat) + "件";
+          var prefTxt = po && po.error ? pn + "の募集（今日は取得できず）" : pn + "の募集 " + num(pc.n) + "件";
           if (a.muni) {
             var co = CD.officials.find(function (o) { return o.name === a.muni.name && o.pref === pn; });
             if (!co) {
