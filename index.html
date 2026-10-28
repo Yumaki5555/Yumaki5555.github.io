@@ -22,15 +22,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<script>
+// 入口のタブ（地域から調べる／テーマから探す）の準備。選んだ方だけを表示する。
+// main.js が4秒たっても動かないときは、タブを使わず両方の中身をそのまま表示する（白紙にならないように）
+document.documentElement.classList.add("js");
+setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.classList.remove("js"); }, 4000);
+</script>
 <!-- ?v= の日付は、css・js を直したら書きかえる（古いファイルが残らないように） -->
-<link rel="stylesheet" href="style.css?v=20261028g">
-<link rel="stylesheet" href="area.css?v=20261029a">
+<link rel="stylesheet" href="style.css?v=20261029b">
+<link rel="stylesheet" href="area.css?v=20261029b">
 <script src="sites.js?v=20261028g" defer></script>
 <script src="site-cards.js?v=20261028g" defer></script>
-<script src="main.js?v=20261028g" defer></script>
+<script src="main.js?v=20261029b" defer></script>
 <script src="data/japan-map.js?v=20261028g" defer></script>
 <script src="region-topics.js?v=20261029a" defer></script>
-<script src="region.js?v=20261028g" defer></script>
+<script src="region.js?v=20261029b" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
@@ -62,11 +68,28 @@
     <div class="hero-inner wrap">
       <h1 class="hero-title" id="hero-title">日本を知る。</h1>
       <p class="hero-catch-wrap"><span class="hero-catch">日本のこと、あなたのまちのこと。</span><br class="br-narrow"><span class="hero-catch">地図から調べて、比べて、知る。</span></p>
-      <p class="hero-lead">地域を選ぶと、外国人住民・モスク・民泊・多文化共生の予算・海外との協定・意見募集・署名を、<span class="nowrap">まとめて調べ始められます。</span></p>
+    </div>
+    <!-- 2つの入口（同じ大きさ・同じ配色）。押した方の中身だけを下に表示する -->
+    <div class="entry wrap">
+      <p class="entry-q" id="entry-q">どちらから調べますか？</p>
+      <div class="entry-tabs" role="tablist" aria-labelledby="entry-q">
+        <button type="button" class="entry-tab" role="tab" id="tab-area" aria-selected="false" aria-controls="area" data-tab="area">
+          <span class="entry-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 6.5 9 4.5l6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v6"/><path d="M18.5 14.6c0 2.2-2.4 4.4-2.4 4.4s-2.4-2.2-2.4-4.4a2.4 2.4 0 0 1 4.8 0z"/></svg></span>
+          <span class="entry-title">地域から調べる</span>
+          <span class="entry-sub">都道府県・市区町村<br class="br-narrow">から探す</span>
+          <span class="entry-state" aria-hidden="true">表示中</span>
+        </button>
+        <button type="button" class="entry-tab" role="tab" id="tab-themes" aria-selected="false" aria-controls="panel-themes" data-tab="themes" tabindex="-1">
+          <span class="entry-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 17v-3M12 17v-5M15 17v-2"/></svg></span>
+          <span class="entry-title">テーマから探す</span>
+          <span class="entry-sub">12の専門サイト<br class="br-narrow">から探す</span>
+          <span class="entry-state" aria-hidden="true">表示中</span>
+        </button>
+      </div>
     </div>
   </section>
 
-  <section class="area" id="area" aria-labelledby="h-area" data-mode="pick">
+  <section class="area entry-panel" id="area" role="tabpanel" aria-labelledby="tab-area" data-mode="pick">
     <div class="wrap">
 
       <!-- 選ぶ画面：地図・名前で探す・一覧から選ぶ。地域を選ぶと閉じて、下の情報の画面を見せる -->
@@ -157,6 +180,7 @@
     </div>
   </section>
 
+  <div class="entry-panel" id="panel-themes" role="tabpanel" aria-labelledby="tab-themes">
   <div class="themes-head" id="themes">
     <div class="wrap">
       <h2>テーマから探す</h2>
@@ -223,6 +247,8 @@
 <!-- cards:end --></div>
     </div>
   </section>
+
+  </div>
 
   <noscript>
     <div class="wrap"><p class="noscript">地図と地域の選択を使うには、ブラウザの JavaScript を有効にしてください。12のサイトは、上の「テーマから探す」から開けます。</p></div>

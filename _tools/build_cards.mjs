@@ -16,7 +16,7 @@ for (const f of ["sites.js", "site-cards.js"]) vm.runInContext(fs.readFileSync(p
 const file = path.join(root, "index.html");
 let html = fs.readFileSync(file, "utf8");
 for (const cat of ["research", "learn", "participate"]) {
-  const re = new RegExp(`(<div class="cards" data-category="${cat}"><!-- cards:start[^>]*-->)[\s\S]*?(<!-- cards:end -->)`);
+  const re = new RegExp(`(<div class="cards" data-category="${cat}"><!-- cards:start[^>]*-->)[\\s\\S]*?(<!-- cards:end -->)`);
   if (!re.test(html)) throw new Error(`index.html に ${cat} の書きこみ場所がありません`);
   const cards = ctx.window.SiteCards.html(ctx.window.SITES, cat);
   html = html.replace(re, (_, a, b) => a + "\n" + cards.replace(/<\/article>/g, "</article>\n") + b);

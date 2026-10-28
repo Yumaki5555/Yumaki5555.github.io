@@ -3,13 +3,13 @@
 // ・地域を選んだら選ぶ画面を閉じ、選んだ地域の名前と8つのカードをすぐ見せる（情報の画面）。「地域を変える」で選ぶ画面に戻る
 // ・選んだ地域を URL（?area=コード）に入れる。共有・戻る・進むで同じ地域が開く
 // ・市区町村の一覧 data/municipalities.json は、必要になったときに1回だけ読む
+// ・入口のタブで「地域から調べる」が開くまでは、地図なども作らない（main.js が "area:open" で知らせる）
 (function () {
   "use strict";
 
   var MAP = window.JAPAN_MAP;
   var root = document.getElementById("area");
   if (!MAP || !root) return;
-  root.classList.add("is-ready");
 
   var PREFS = MAP.prefs.map(function (p) { return { code: p[0], name: p[1], kana: "" }; });
   var prefByCode = {};
@@ -95,14 +95,17 @@
     changeBtn.setAttribute("aria-expanded", open ? "true" : "false");
     changeBtn.textContent = !area ? "地域を選ぶ" : open ? "地図を閉じる" : "地域を変える";
   }
-  // 画面のガタつきを抑えるため、アニメーションなしで移動する
+  // 画面のガタつきを抑えるため、アニメーションなしで移動する（地域の画面が閉じているときは動かさない）
+  function visible() { return root.getClientRects().length > 0; }
   function jumpTo(el) {
+    if (!visible()) return;
     var headerH = document.querySelector(".site-header").offsetHeight;
     var y = el.getBoundingClientRect().top + window.pageYOffset - headerH - 8;
     window.scrollTo(0, Math.max(0, y));
   }
   function showCards() {
     // 選んだ地域の見出しが画面の上の方に見えていなければ、そこまで移動する
+    if (!visible()) return;
     var top = result.getBoundingClientRect().top;
     var headerH = document.querySelector(".site-header").offsetHeight;
     if (top < headerH || top > window.innerHeight * 0.45) jumpTo(result);
@@ -424,8 +427,9 @@
   }
 
   // ---------- 戻る・進む ----------
-  window.addEventListener("popstate", function () {
+  function onPopState() {
     var code = new URL(location.href).searchParams.get("area");
+    if ((code || "") === areaCode(area)) return; // 地域が変わらない（タブだけの切りかえなど）ときは何もしない
     areaFromCode(code).then(function (a) {
       var wasPick = root.getAttribute("data-mode") === "pick";
       setArea(a, { push: false });
@@ -434,22 +438,29 @@
       if (a && wasPick) showCards();
       else if (!a) jumpTo(picker);
     });
-  });
-
-  // ---------- はじめ ----------
-  drawMap();
-  fillPrefSelect();
-  var first = new URL(location.href).searchParams.get("area");
-  if (first) {
-    // 地域つきの URL で開いたとき（共有されたリンクなど）は、選ぶ画面を閉じて、その地域の情報をすぐ見せる
-    setMode("view");
-    areaFromCode(first).then(function (a) {
-      setArea(a, { push: false });
-      setMode(a ? "view" : "pick");
-      history.replaceState({ area: areaCode(a) }, "", location.href);
-    });
-  } else {
-    setArea(null, { push: false });
-    setMode("pick");
   }
+
+  // ---------- はじめ（地域の画面が初めて開いたとき） ----------
+  var started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    drawMap();
+    fillPrefSelect();
+    window.addEventListener("popstate", onPopState);
+    var first = new URL(location.href).searchParams.get("area");
+    if (first) {
+      // 地域つきの URL で開いたとき（共有されたリンクなど）は、選ぶ画面を閉じて、その地域の情報をすぐ見せる
+      setMode("view");
+      areaFromCode(first).then(function (a) {
+        setArea(a, { push: false });
+        setMode(a ? "view" : "pick");
+      });
+    } else {
+      setArea(null, { push: false });
+      setMode("pick");
+    }
+  }
+  if (visible()) start();
+  else document.addEventListener("area:open", start);
 })();
