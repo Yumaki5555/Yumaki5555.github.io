@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>日本を知る。｜数字と地図で見る、私たちの社会。</title>
-<meta name="description" content="国の政策、海外との協定、自治体の財政、外国人統計、地域の施設、市民参加。公開情報をもとに、日本の「いま」を調べ、考え、行動するためのサイトを集めた入口です。">
+<title>日本を知る。｜地図から調べて、比べて、知る。</title>
+<meta name="description" content="日本地図で地域を選ぶと、外国人住民・モスク・民泊・多文化共生の予算・自治体の財政・海外との協定・意見募集・署名を、12の専門サイトでまとめて調べ始められる入口です。">
 <link rel="canonical" href="https://yumaki5555.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="日本を知る。">
-<meta property="og:title" content="日本を知る。｜数字と地図で見る、私たちの社会。">
-<meta property="og:description" content="国の政策、海外との協定、自治体の財政、外国人統計、地域の施設、市民参加。公開情報をもとに、日本の「いま」を調べ、考え、行動するためのサイトを集めた入口です。">
+<meta property="og:title" content="日本を知る。｜地図から調べて、比べて、知る。">
+<meta property="og:description" content="日本地図で地域を選ぶと、外国人住民・モスク・民泊・多文化共生の予算・自治体の財政・海外との協定・意見募集・署名を、12の専門サイトでまとめて調べ始められる入口です。">
 <meta property="og:url" content="https://yumaki5555.github.io/">
 <meta property="og:image" content="https://yumaki5555.github.io/ogp.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="日本を知る。数字と地図で見る、私たちの社会。">
+<meta property="og:image:alt" content="日本を知る。日本のこと、あなたのまちのこと。地図から調べて、比べて、知る。">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#203750">
@@ -22,10 +22,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
-<!-- ?v= の日付は、style.css・sites.js・main.js を直したら書きかえる（古いファイルが残らないように） -->
-<link rel="stylesheet" href="style.css?v=20261028">
-<script src="sites.js?v=202610281345" defer></script>
-<script src="main.js?v=20261028" defer></script>
+<!-- ?v= の日付は、css・js を直したら書きかえる（古いファイルが残らないように） -->
+<link rel="stylesheet" href="style.css?v=202610282">
+<link rel="stylesheet" href="area.css?v=202610282">
+<script src="sites.js?v=202610282" defer></script>
+<script src="main.js?v=202610282" defer></script>
+<script src="data/japan-map.js?v=202610282" defer></script>
+<script src="region-topics.js?v=202610282" defer></script>
+<script src="region.js?v=202610282" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
@@ -42,11 +46,10 @@
     </button>
     <nav id="site-nav" class="site-nav" aria-label="サイト内メニュー">
       <ul>
-        <li><a href="#top">ホーム</a></li>
-        <li><a href="#research">調べる</a></li>
-        <li><a href="#learn">学ぶ</a></li>
-        <li><a href="#participate">参加する</a></li>
+        <li><a href="#area">地域から調べる</a></li>
+        <li><a href="#themes">テーマから探す</a></li>
         <li><a href="#about">このサイトについて</a></li>
+        <li><a href="#policy">掲載情報について</a></li>
       </ul>
     </nav>
   </div>
@@ -56,74 +59,108 @@
 
   <section class="hero" id="top" aria-labelledby="hero-title">
     <div class="hero-inner wrap">
-      <div class="hero-text">
-        <h1 class="hero-title" id="hero-title">日本を知る。</h1>
-        <p class="hero-sub">数字と地図で見る、私たちの社会。</p>
-        <p class="hero-catch">知ることから、はじめよう。</p>
-        <p class="hero-lead">国の政策、自治体の財政、外国人統計、地域の施設、市民参加。<br class="br-wide">公開情報をもとに、日本の「いま」を調べ、考え、行動するための情報サイトです。</p>
-        <p class="hero-total"><strong><span data-count="all">12</span>のサイト</strong>を、目的別に紹介しています。</p>
-      </div>
-      <!-- 飾りの線画（実際の数値は表していません） -->
-      <svg class="hero-art" viewBox="0 0 560 460" aria-hidden="true" focusable="false">
-        <defs>
-          <pattern id="dots" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.8" class="art-dot"/></pattern>
-        </defs>
-        <g transform="translate(200 28)">
-          <path class="art-land" d="M201,100 L226,93 L222,81 L236,74 L266,90 L287,67 L310,57 L300,38 L285,40 L241,5 L234,12 L238,33 L230,57 L211,57 L200,74Z"/>
-          <path class="art-land" d="M220,100 L232,105 L230,121 L241,145 L234,162 L222,176 L222,195 L220,209 L215,226 L218,238 L211,252 L200,257 L196,249 L188,249 L180,264 L169,264 L146,264 L144,271 L137,290 L124,290 L110,271 L116,261 L93,261 L70,268 L55,280 L30,280 L32,268 L63,242 L78,242 L97,240 L116,242 L127,235 L141,211 L142,200 L152,195 L148,209 L171,202 L184,185 L194,169 L201,147 L203,128 L209,107Z"/>
-          <path class="art-land" d="M63,302 L68,309 L84,292 L93,297 L103,283 L101,273 L82,268 L68,276 L59,292Z"/>
-          <path class="art-land" d="M30,280 L46,287 L49,306 L40,340 L27,349 L17,342 L21,323 L17,309 L6,297 L11,287 L21,287Z"/>
-        </g>
-        <g class="art-doc">
-          <rect x="34" y="44" width="124" height="156" rx="10"/>
-          <path d="M54 74h60M54 98h84M54 118h84M54 138h70M54 158h52"/>
-          <path class="art-check" d="M118 168l8 8 16-18"/>
-        </g>
-        <g class="art-bars">
-          <path class="art-axis" d="M30 412h160"/>
-          <rect x="44" y="352" width="24" height="60" rx="3"/>
-          <rect x="80" y="318" width="24" height="94" rx="3"/>
-          <rect x="116" y="336" width="24" height="76" rx="3"/>
-          <rect x="152" y="284" width="24" height="128" rx="3"/>
-        </g>
-        <g class="art-line">
-          <polyline points="262,432 302,418 342,424 382,400 422,406 462,382 502,370 538,352"/>
-          <circle cx="302" cy="418" r="4.5"/><circle cx="382" cy="400" r="4.5"/><circle cx="462" cy="382" r="4.5"/><circle cx="538" cy="352" r="5.5"/>
-        </g>
-        <g class="art-lens">
-          <circle cx="428" cy="198" r="50"/>
-          <path d="M464 234l34 34"/>
-        </g>
-      </svg>
-    </div>
-    <div class="wrap">
-      <nav class="hero-actions" aria-label="目的から選ぶ">
-        <a class="hero-btn cat-research" href="#research">
-          <span class="hb-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg></span>
-          <span class="hb-text"><span class="hb-label">調べる・比較する</span><span class="hb-sub">データと地図で詳しく・<span class="nowrap"><span data-count="research">8</span>サイト</span></span></span>
-          <svg class="ico hb-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-        </a>
-        <a class="hero-btn cat-learn" href="#learn">
-          <span class="hb-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 5.5c3-1 6-1 8.5 1 2.5-2 5.5-2 8.5-1v13c-3-1-6-1-8.5 1-2.5-2-5.5-2-8.5-1z"/><path d="M12 6.5v13"/></svg></span>
-          <span class="hb-text"><span class="hb-label">図で学ぶ</span><span class="hb-sub">図やクイズでやさしく・<span class="nowrap"><span data-count="learn">2</span>サイト</span></span></span>
-          <svg class="ico hb-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-        </a>
-        <a class="hero-btn cat-participate" href="#participate">
-          <span class="hb-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>
-          <span class="hb-text"><span class="hb-label">声を届ける</span><span class="hb-sub">意見募集や署名を探す・<span class="nowrap"><span data-count="participate">2</span>サイト</span></span></span>
-          <svg class="ico hb-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-        </a>
-      </nav>
+      <h1 class="hero-title" id="hero-title">日本を知る。</h1>
+      <p class="hero-catch-wrap"><span class="hero-catch">日本のこと、あなたのまちのこと。</span><br class="br-narrow"><span class="hero-catch">地図から調べて、比べて、知る。</span></p>
+      <p class="hero-lead">地域を選ぶと、外国人住民・モスク・民泊・多文化共生の予算・海外との協定・意見募集・署名を、<span class="nowrap">まとめて調べ始められます。</span></p>
     </div>
   </section>
+
+  <section class="area" id="area" aria-labelledby="h-area">
+    <div class="wrap">
+      <div class="area-grid">
+        <div class="section-head area-head">
+          <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg></span>
+          <div>
+            <h2 id="h-area">地域から調べる</h2>
+            <p>地図で都道府県を押すか、市区町村の名前で探してください。選んだ地域の情報を、それぞれの専門サイトで調べられます。</p>
+          </div>
+        </div>
+
+        <div class="area-map">
+          <svg class="jmap" role="group" aria-label="日本地図。都道府県を押すと選べます。矢印キーで都道府県を移り、Enterキーで選べます。"></svg>
+          <p class="jmap-hint">都道府県を押すと選べます</p>
+        </div>
+
+        <form class="area-search-form" role="search" action="#">
+          <label for="area-search">市区町村・都道府県の名前で探す</label>
+          <div class="combo">
+            <svg class="ico ico-search" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg>
+            <input id="area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="area-search-list" autocomplete="off" placeholder="例：江東区、いちかわ、札幌">
+            <ul id="area-search-list" class="area-list" role="listbox" aria-label="地域の候補" hidden></ul>
+          </div>
+        </form>
+
+        <div class="area-panel">
+          <p class="area-or">または一覧から選ぶ</p>
+
+          <div class="area-selects">
+            <div class="field">
+              <label for="area-pref">都道府県</label>
+              <select id="area-pref"></select>
+            </div>
+            <div class="field area-muni-field" hidden>
+              <label for="area-muni">市区町村</label>
+              <select id="area-muni"></select>
+            </div>
+          </div>
+
+          <div>
+            <p class="area-quick-label">例：よく調べられている地域</p>
+            <ul class="area-quick">
+              <li><button type="button" class="chip-btn" data-area="131083">東京都 江東区</button></li>
+              <li><button type="button" class="chip-btn" data-area="122033">千葉県 市川市</button></li>
+              <li><button type="button" class="chip-btn" data-area="112038">埼玉県 川口市</button></li>
+              <li><button type="button" class="chip-btn" data-area="271004">大阪府 大阪市</button></li>
+              <li><button type="button" class="chip-btn" data-area="011002">北海道 札幌市</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-result" id="area-result" aria-labelledby="area-result-title">
+        <div class="area-current">
+          <div class="area-current-main" aria-live="polite">
+            <span class="area-current-label">選んでいる地域</span>
+            <p class="area-current-name" id="area-result-title"><span class="crumb-now">全国</span></p>
+          </div>
+          <a class="btn-ghost area-change" href="#area">地域を変える</a>
+        </div>
+        <div class="area-sub">
+          <p class="area-current-note"></p>
+          <div class="area-sub-actions">
+            <button type="button" class="btn-line area-pref-all" hidden></button>
+            <button type="button" class="btn-line area-share" hidden>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>
+              URLをコピー
+            </button>
+          </div>
+        </div>
+        <p class="area-share-msg" role="status"></p>
+        <div id="area-cards"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="themes-head" id="themes">
+    <div class="wrap">
+      <h2>テーマから探す</h2>
+      <p>12のサイトを、目的別に紹介しています。画面の写真やボタンを押すと、それぞれのサイトが新しいタブで開きます。</p>
+      <nav class="theme-jump" aria-label="テーマの分類">
+        <a href="#research" class="cat-research">調べる・比較する<span class="tj-n"><span data-count="research">8</span>サイト</span></a>
+        <a href="#learn" class="cat-learn">わかりやすく学ぶ<span class="tj-n"><span data-count="learn">2</span>サイト</span></a>
+        <a href="#participate" class="cat-participate">声を届ける・参加する<span class="tj-n"><span data-count="participate">2</span>サイト</span></a>
+      </nav>
+    </div>
+  </div>
 
   <section class="cat-section cat-research" id="research" aria-labelledby="h-research">
     <div class="wrap">
       <div class="section-head">
         <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg></span>
         <div>
-          <h2 id="h-research"><span class="nowrap">調べる・比較する</span><span class="count-pill"><span data-count="research">8</span>サイト</span></h2>
+          <h3 id="h-research"><span class="nowrap">調べる・比較する</span><span class="count-pill"><span data-count="research">8</span>サイト</span></h3>
           <p>政策の進み具合、海外との協定、自治体のお金、外国人の数、地域の施設、感染症の広がりを、データと地図で詳しく調べられます。</p>
+          <p class="swipe-hint"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h15M14 7l5 5-5 5"/></svg>横にスワイプすると、ほかのサイトも見られます</p>
         </div>
       </div>
       <div class="cards" data-category="research"></div>
@@ -135,7 +172,7 @@
       <div class="section-head">
         <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 5.5c3-1 6-1 8.5 1 2.5-2 5.5-2 8.5-1v13c-3-1-6-1-8.5 1-2.5-2-5.5-2-8.5-1z"/><path d="M12 6.5v13"/></svg></span>
         <div>
-          <h2 id="h-learn"><span class="nowrap">わかりやすく学ぶ</span><span class="count-pill"><span data-count="learn">2</span>サイト</span></h2>
+          <h3 id="h-learn"><span class="nowrap">わかりやすく学ぶ</span><span class="count-pill"><span data-count="learn">2</span>サイト</span></h3>
           <p>図やグラフ、クイズを使って、はじめての人にもわかりやすく紹介しているサイトです。</p>
         </div>
       </div>
@@ -148,7 +185,7 @@
       <div class="section-head">
         <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>
         <div>
-          <h2 id="h-participate"><span class="nowrap">声を届ける・参加する</span><span class="count-pill"><span data-count="participate">2</span>サイト</span></h2>
+          <h3 id="h-participate"><span class="nowrap">声を届ける・参加する</span><span class="count-pill"><span data-count="participate">2</span>サイト</span></h3>
           <p>意見を募集している案件や署名活動を探して、自分の考えを届けられます。</p>
         </div>
       </div>
@@ -157,7 +194,7 @@
   </section>
 
   <noscript>
-    <div class="wrap"><p class="noscript">サイトの一覧を表示するには、ブラウザの JavaScript を有効にしてください。</p></div>
+    <div class="wrap"><p class="noscript">地図と地域の選択、サイトの一覧を表示するには、ブラウザの JavaScript を有効にしてください。</p></div>
   </noscript>
 
   <section class="about" id="about" aria-labelledby="h-about">
@@ -197,6 +234,11 @@
         <p>掲載されている情報の時点や調査範囲、出典は各サイトで確認してください。</p>
         <p>情報の正確性には配慮していますが、更新時期や掲載条件などによって、実際の状況と異なる場合があります。</p>
         <p>各サイトの情報を利用する際は、出典と更新日を確認し、ご自身で判断してください。</p>
+        <h3 class="policy-sub">「地域から調べる」について</h3>
+        <p>カードの数値は、地域を選んだときに、各専門サイトが公開しているデータをその場で読み取って表示しています。数値の下に、集計の時点と範囲を書いています。</p>
+        <p>サイトに載っていない地域や、まだ調べていない地域は「0件」とは書かず、「掲載対象外」「未調査」「掲載なし（0件とは限りません）」のように分けて表示します。</p>
+        <p>カードのボタンの上には、どのページが開くかを書いています。✓（緑）は選んだ地域のページ、！（茶）は市区町村のページがないため都道府県のページ、－（灰）は地域が引き継がれずサイトのトップが開くことを表します。</p>
+        <p class="policy-small">日本地図：国土数値情報（行政区域データ）国土交通省 をもとに、スマートニュース メディア研究所が簡略化したデータを加工して作成（沖縄県は左上の枠に拡大して表示）。市区町村の一覧：総務省「全国地方公共団体コード」（令和6年1月1日更新）。政令指定都市は市全体で1つとしています。</p>
         <p class="policy-note">カードの画面例は、2026年10月28日に各サイトを撮影した実際の画面です。件数などの数字は撮影した時点のもので、最新の内容は各サイトで確認してください。<br>カードの「ページ更新日」は、そのサイトのページが最後に公開された日を自動で読み取って表示しています。読み取れないサイトには表示していません。</p>
       </div>
     </div>
@@ -208,14 +250,13 @@
   <div class="wrap footer-inner">
     <div>
       <p class="footer-brand">日本を知る。</p>
-      <p>数字と地図で見る、私たちの社会。</p>
+      <p>日本のこと、あなたのまちのこと。地図から調べて、比べて、知る。</p>
     </div>
     <nav class="footer-nav" aria-label="フッターメニュー">
       <ul>
         <li><a href="#top">ホーム</a></li>
-        <li><a href="#research">調べる</a></li>
-        <li><a href="#learn">学ぶ</a></li>
-        <li><a href="#participate">参加する</a></li>
+        <li><a href="#area">地域から調べる</a></li>
+        <li><a href="#themes">テーマから探す</a></li>
         <li><a href="#about">このサイトについて</a></li>
         <li><a href="#policy">掲載情報について</a></li>
       </ul>
