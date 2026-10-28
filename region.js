@@ -1,17 +1,17 @@
 // 日本を知る。 「地域から調べる」の動き
-// ・日本地図（data/japan-map.js）を描き、都道府県をクリック・キーボードで選べるようにする
-// ・都道府県・市区町村の名前で検索できるようにする（市区町村の一覧 data/municipalities.json は、必要になったときに1回だけ読む）
+// ・地域を選ぶ前は、日本地図・名前で探す・一覧から選ぶ を出す（選ぶ画面）
+// ・地域を選んだら選ぶ画面を閉じ、選んだ地域の名前と8つのカードをすぐ見せる（情報の画面）。「地域を変える」で選ぶ画面に戻る
 // ・選んだ地域を URL（?area=コード）に入れる。共有・戻る・進むで同じ地域が開く
-// ・選んだ地域に合わせて、8つの「調べられること」カード（region-topics.js）を作り直す
+// ・市区町村の一覧 data/municipalities.json は、必要になったときに1回だけ読む
 (function () {
   "use strict";
 
   var MAP = window.JAPAN_MAP;
-  var TOPICS = window.REGION_TOPICS || [];
   var root = document.getElementById("area");
   if (!MAP || !root) return;
+  root.classList.add("is-ready");
 
-  var PREFS = MAP.prefs.map(function (p) { return { code: p[0], name: p[1] }; });
+  var PREFS = MAP.prefs.map(function (p) { return { code: p[0], name: p[1], kana: "" }; });
   var prefByCode = {};
   PREFS.forEach(function (p) { prefByCode[p.code] = p; });
 
@@ -40,7 +40,7 @@
             (byPref[o.pref] = byPref[o.pref] || []).push(o);
             return o;
           });
-          muniData = { list: list, byCode: byCode, byPref: byPref, source: d.source, url: d.url };
+          muniData = { list: list, byCode: byCode, byPref: byPref };
           return muniData;
         })
         .catch(function (e) { muniPromise = null; throw e; });
@@ -49,7 +49,7 @@
   }
 
   // ---------- 選んでいる地域 ----------
-  // area = null（全国）/ { pref: "13", muni: null } / { pref: "13", muni: { code, name, kana } }
+  // area = null（全国）/ { pref: "13", muni: null } / { pref: "13", muni: { code, name, kana, seirei } }
   var area = null;
 
   function areaCode(a) { return !a ? "" : a.muni ? a.muni.code : a.pref; }
@@ -64,29 +64,59 @@
     }
     return Promise.resolve(null);
   }
+  function fullName(a) {
+    return !a ? "全国" : a.muni ? prefByCode[a.pref].name + " " + a.muni.name : prefByCode[a.pref].name;
+  }
 
   // ---------- 画面の部品 ----------
+  var picker = document.getElementById("area-picker");
   var svg = root.querySelector(".jmap");
+  var hoverName = root.querySelector(".jmap-name");
   var prefSelect = document.getElementById("area-pref");
   var muniSelect = document.getElementById("area-muni");
-  var muniWrap = root.querySelector(".area-muni-field");
+  var narrow = root.querySelector(".area-narrow");
   var search = document.getElementById("area-search");
   var listbox = document.getElementById("area-search-list");
-  var crumbs = root.querySelector(".area-current-name");
-  var currentNote = root.querySelector(".area-current-note");
+  var result = document.getElementById("area-result");
+  var crumbs = document.getElementById("area-result-title");
+  var mini = root.querySelector(".area-mini");
+  var changeBtn = root.querySelector(".area-change");
+  var prefAllBtn = root.querySelector(".area-pref-all");
   var shareBtn = root.querySelector(".area-share");
   var shareMsg = root.querySelector(".area-share-msg");
-  var prefAllBtn = root.querySelector(".area-pref-all");
   var cardsBox = document.getElementById("area-cards");
+  var BASE_TITLE = document.title;
+
+  // 選ぶ画面（pick）と情報の画面（view）の切りかえ
+  function setMode(mode) {
+    root.setAttribute("data-mode", mode);
+    var open = mode === "pick";
+    picker.hidden = !open;
+    changeBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    changeBtn.textContent = !area ? "地域を選ぶ" : open ? "地図を閉じる" : "地域を変える";
+  }
+  // 画面のガタつきを抑えるため、アニメーションなしで移動する
+  function jumpTo(el) {
+    var headerH = document.querySelector(".site-header").offsetHeight;
+    var y = el.getBoundingClientRect().top + window.pageYOffset - headerH - 8;
+    window.scrollTo(0, Math.max(0, y));
+  }
+  function showCards() {
+    // 選んだ地域の見出しが画面の上の方に見えていなければ、そこまで移動する
+    var top = result.getBoundingClientRect().top;
+    var headerH = document.querySelector(".site-header").offsetHeight;
+    if (top < headerH || top > window.innerHeight * 0.45) jumpTo(result);
+  }
 
   // ---------- 地図 ----------
   var SVGNS = "http://www.w3.org/2000/svg";
   var pathByCode = {};
   function drawMap() {
     svg.setAttribute("viewBox", "0 0 " + MAP.w + " " + MAP.h);
+    svg.style.aspectRatio = MAP.w + " / " + MAP.h;
     var frag = document.createDocumentFragment();
-    var box = document.createElementNS(SVGNS, "rect");
     var ins = MAP.inset;
+    var box = document.createElementNS(SVGNS, "rect");
     box.setAttribute("x", ins[0]); box.setAttribute("y", ins[1]);
     box.setAttribute("width", ins[2]); box.setAttribute("height", ins[3]);
     box.setAttribute("rx", 6);
@@ -106,9 +136,6 @@
       path.setAttribute("role", "button");
       path.setAttribute("tabindex", "-1");
       path.setAttribute("aria-label", p.name);
-      var t = document.createElementNS(SVGNS, "title");
-      t.textContent = p.name;
-      path.appendChild(t);
       pathByCode[p.code] = path;
       frag.appendChild(path);
     });
@@ -118,7 +145,17 @@
 
     svg.addEventListener("click", function (e) {
       var el = e.target.closest("[data-code]");
-      if (el) choosePref(el.getAttribute("data-code"), true);
+      if (el) pick({ pref: el.getAttribute("data-code"), muni: null });
+    });
+    // 押す前に、指している都道府県の名前を地図の上に出す（小さい県の押しまちがいを防ぐ）
+    svg.addEventListener("pointerover", function (e) {
+      var el = e.target.closest("[data-code]");
+      hoverName.textContent = el ? prefByCode[el.getAttribute("data-code")].name : "";
+    });
+    svg.addEventListener("pointerleave", function () { hoverName.textContent = ""; });
+    svg.addEventListener("focusin", function (e) {
+      var el = e.target.closest("[data-code]");
+      if (el) hoverName.textContent = prefByCode[el.getAttribute("data-code")].name;
     });
     svg.addEventListener("keydown", function (e) {
       var el = e.target.closest(".jmap-pref");
@@ -131,30 +168,59 @@
       else if (e.key === "End") next = PREFS[PREFS.length - 1];
       else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        choosePref(el.getAttribute("data-code"), true);
+        pick({ pref: el.getAttribute("data-code"), muni: null });
         return;
       }
       if (next) {
         e.preventDefault();
-        focusPath(next.code);
+        Object.keys(pathByCode).forEach(function (c) { pathByCode[c].setAttribute("tabindex", c === next.code ? "0" : "-1"); });
+        pathByCode[next.code].focus();
       }
     });
+
+    // 地方ごとに地図を大きくする（小さい都道府県を選びやすくする）
+    root.querySelectorAll("[data-zoom]").forEach(function (b) {
+      b.addEventListener("click", function () { zoom(b.getAttribute("data-zoom")); });
+    });
+
+    // 選んだ地域の見出しに出す小さな地図（場所を示すだけ）
+    mini.setAttribute("viewBox", "0 0 " + MAP.w + " " + MAP.h);
+    mini.innerHTML = MAP.prefs.map(function (p) { return '<path data-code="' + p[0] + '" d="' + p[2] + '"/>'; }).join("");
   }
-  function focusPath(code) {
-    Object.keys(pathByCode).forEach(function (c) { pathByCode[c].setAttribute("tabindex", c === code ? "0" : "-1"); });
-    pathByCode[code].focus();
+  function zoom(range) {
+    var vb = "0 0 " + MAP.w + " " + MAP.h;
+    if (range !== "all") {
+      var r = range.split("-");
+      var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      // 各都道府県のいちばん大きい島の範囲（data/japan-map.js の4つめ）を合わせる。離島で範囲が広がらないように
+      for (var c = +r[0]; c <= +r[1]; c++) {
+        var b = MAP.prefs[c - 1][3];
+        x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]);
+        x1 = Math.max(x1, b[0] + b[2]); y1 = Math.max(y1, b[1] + b[3]);
+      }
+      var pad = Math.max(x1 - x0, y1 - y0) * 0.06;
+      vb = [x0 - pad, y0 - pad, x1 - x0 + pad * 2, y1 - y0 + pad * 2].map(Math.round).join(" ");
+    }
+    svg.setAttribute("viewBox", vb);
+    svg.classList.toggle("is-zoomed", range !== "all");
+    root.querySelectorAll("[data-zoom]").forEach(function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-zoom") === range ? "true" : "false");
+    });
   }
   function paintMap() {
     Object.keys(pathByCode).forEach(function (c) {
-      var on = area && area.pref === c;
-      pathByCode[c].classList.toggle("is-on", !!on);
+      var on = !!(area && area.pref === c);
+      pathByCode[c].classList.toggle("is-on", on);
       pathByCode[c].setAttribute("aria-pressed", on ? "true" : "false");
     });
-    var keep = area ? area.pref : "13";
+    svg.querySelector(".jmap-inset").classList.toggle("is-on", !!(area && area.pref === "47"));
     if (!svg.contains(document.activeElement)) {
+      var keep = area ? area.pref : "13";
       Object.keys(pathByCode).forEach(function (c) { pathByCode[c].setAttribute("tabindex", c === keep ? "0" : "-1"); });
     }
-    svg.querySelector(".jmap-inset").classList.toggle("is-on", !!(area && area.pref === "47"));
+    [].forEach.call(mini.querySelectorAll("path"), function (p) {
+      p.classList.toggle("is-on", !!(area && area.pref === p.getAttribute("data-code")));
+    });
   }
 
   // ---------- 選択欄 ----------
@@ -163,30 +229,29 @@
     PREFS.forEach(function (p) { html += '<option value="' + p.code + '">' + esc(p.name) + "</option>"; });
     prefSelect.innerHTML = html;
   }
+  // 選んだ地域の見出しの下の「市区町村で絞り込む」
   function fillMuniSelect() {
-    if (!area) {
-      muniWrap.hidden = true;
-      return;
-    }
-    muniWrap.hidden = false;
+    narrow.hidden = !area;
+    if (!area) return;
     var pref = prefByCode[area.pref];
-    muniSelect.innerHTML = '<option value="">' + esc(pref.name) + "全体</option>";
-    muniSelect.disabled = true;
-    loadMunis().then(function (d) {
-      if (!area || area.pref !== pref.code) return;
-      var html = '<option value="">' + esc(pref.name) + "全体</option>";
-      (d.byPref[pref.code] || []).forEach(function (m) {
-        html += '<option value="' + m.code + '">' + esc(m.name) + "</option>";
-      });
-      muniSelect.innerHTML = html;
+    var all = '<option value="">' + esc(pref.name) + "全体</option>";
+    if (muniData) {
+      muniSelect.innerHTML = all + (muniData.byPref[pref.code] || []).map(function (m) {
+        return '<option value="' + m.code + '">' + esc(m.name) + "</option>";
+      }).join("");
       muniSelect.value = area.muni ? area.muni.code : "";
       muniSelect.disabled = false;
-    }, function () {
+      return;
+    }
+    muniSelect.innerHTML = all;
+    muniSelect.disabled = true;
+    loadMunis().then(function () { if (area && area.pref === pref.code) fillMuniSelect(); }, function () {
       muniSelect.innerHTML = '<option value="">市区町村の一覧を読み込めませんでした</option>';
     });
   }
 
   // ---------- 地域を決める ----------
+  // opts.push … URL を履歴に足すか（戻る・進むのときは足さない）
   function setArea(next, opts) {
     opts = opts || {};
     var changed = areaCode(next) !== areaCode(area);
@@ -195,57 +260,39 @@
     prefSelect.value = area ? area.pref : "";
     fillMuniSelect();
     renderCurrent();
-    renderCards();
+    if (changed || !cardsBox.querySelector(".topic")) renderCards();
     if (changed && opts.push !== false) {
       var url = new URL(location.href);
       if (area) url.searchParams.set("area", areaCode(area)); else url.searchParams.delete("area");
+      url.hash = "";
       history.pushState({ area: areaCode(area) }, "", url.pathname + url.search);
     }
     document.title = (area ? fullName(area) + "の情報｜" : "") + BASE_TITLE;
   }
-  var BASE_TITLE = document.title;
-
-  function fullName(a) {
-    return !a ? "全国" : a.muni ? prefByCode[a.pref].name + " " + a.muni.name : prefByCode[a.pref].name;
+  // 人が地域を選んだとき：選ぶ画面を閉じて、カードを見せる
+  function pick(a) {
+    setArea(a);
+    setMode(a ? "view" : "pick");
+    if (a) showCards();
   }
 
-  function choosePref(code, fromMap) {
-    if (!prefByCode[code]) return;
-    if (area && area.pref === code && !area.muni && fromMap) return;
-    setArea({ pref: code, muni: null });
-    if (fromMap && window.matchMedia("(max-width: 860px)").matches) {
-      muniSelect.focus({ preventScroll: true });
-      root.querySelector(".area-panel").scrollIntoView({ behavior: smooth(), block: "start" });
-    }
-  }
-  function smooth() {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-  }
-
-  // 選んだ地域の表示（パンくず）
+  // 選んだ地域の見出し
   function renderCurrent() {
-    if (!area) {
-      crumbs.innerHTML = '<span class="crumb-now">全国</span>';
-      currentNote.textContent = "地域を選ぶと、カードがその地域の情報に切りかわります。いまは各サイトのトップを案内しています。";
-      prefAllBtn.hidden = true;
-      shareBtn.hidden = true;
-      shareMsg.textContent = "";
-      return;
-    }
-    var pref = prefByCode[area.pref];
-    crumbs.innerHTML = area.muni
-      ? '<span class="crumb-pref">' + esc(pref.name) + '</span><span class="crumb-sep" aria-hidden="true">＞</span><span class="crumb-now">' + esc(area.muni.name) + "</span>"
-      : '<span class="crumb-now">' + esc(pref.name) + "</span>";
-    currentNote.textContent = area.muni
-      ? "下のカードから、" + area.muni.name + "について各専門サイトで調べられます。"
-      : pref.name + "全体について調べられます。上の選択欄で市区町村も選べます。";
-    prefAllBtn.hidden = !area.muni;
-    prefAllBtn.textContent = pref.name + "全体";
-    shareBtn.hidden = false;
+    var pref = area && prefByCode[area.pref];
+    crumbs.innerHTML = !area
+      ? '<span class="crumb-now">全国</span>'
+      : area.muni
+        ? '<span class="crumb-pref">' + esc(pref.name) + '</span><span class="crumb-sep" aria-hidden="true">＞</span><span class="crumb-now">' + esc(area.muni.name) + "</span>"
+        : '<span class="crumb-now">' + esc(pref.name) + "</span>";
+    if (area) mini.removeAttribute("hidden"); else mini.setAttribute("hidden", ""); // SVG には hidden プロパティがない
+    prefAllBtn.hidden = !(area && area.muni);
+    if (area) prefAllBtn.textContent = pref.name + "全体に戻る";
+    shareBtn.hidden = !area;
     shareMsg.textContent = "";
+    changeBtn.textContent = !area ? "地域を選ぶ" : root.getAttribute("data-mode") === "pick" ? "地図を閉じる" : "地域を変える";
   }
 
-  // ---------- 検索 ----------
+  // ---------- 名前で探す ----------
   var results = [];
   var active = -1;
   function toHira(s) {
@@ -279,12 +326,12 @@
   function drawList(total) {
     if (!results.length) {
       listbox.innerHTML = '<li class="area-opt-empty" role="presentation">' +
-        (muniData ? "見つかりませんでした。漢字やひらがなで入れてみてください。" : "市区町村の一覧を読み込んでいます…") + "</li>";
+        (muniData ? "見つかりませんでした。漢字かひらがなで入れてみてください。" : "市区町村の一覧を読み込んでいます…") + "</li>";
     } else {
       listbox.innerHTML = results.map(function (r, i) {
         var label = r.type === "pref"
-          ? '<span class="opt-name">' + esc(r.pref.name) + '</span><span class="opt-sub">都道府県全体</span>'
-          : '<span class="opt-name">' + esc(r.muni.name) + '</span><span class="opt-sub">' + esc(prefByCode[r.muni.pref].name) + "</span>";
+          ? '<span class="opt-main"><span class="opt-name">' + esc(r.pref.name) + '</span><span class="opt-kana">' + esc(r.pref.kana) + '</span></span><span class="opt-sub is-pref">都道府県全体</span>'
+          : '<span class="opt-main"><span class="opt-name">' + esc(r.muni.name) + '</span><span class="opt-kana">' + esc(r.muni.kana) + '</span></span><span class="opt-sub">' + esc(prefByCode[r.muni.pref].name) + "</span>";
         return '<li id="area-opt-' + i + '" role="option" class="area-opt" aria-selected="' + (i === active) + '" data-i="' + i + '">' + label + "</li>";
       }).join("") + (total > results.length ? '<li class="area-opt-empty" role="presentation">ほか ' + (total - results.length) + " 件。もう少し詳しく入れてください。</li>" : "");
     }
@@ -297,18 +344,13 @@
     search.setAttribute("aria-expanded", "false");
     search.removeAttribute("aria-activedescendant");
   }
-  function pick(i) {
+  function choose(i) {
     var r = results[i];
     if (!r) return;
     closeList();
     search.value = "";
-    if (r.type === "pref") setArea({ pref: r.pref.code, muni: null });
-    else setArea({ pref: r.muni.pref, muni: r.muni });
-    goCards();
-  }
-  function goCards() {
-    var head = document.getElementById("area-result");
-    if (head) head.scrollIntoView({ behavior: smooth(), block: "start" });
+    search.blur();
+    pick(r.type === "pref" ? { pref: r.pref.code, muni: null } : { pref: r.muni.pref, muni: r.muni });
   }
   search.addEventListener("focus", function () { loadMunis().then(function () { if (search.value) runSearch(); }, function () {}); });
   search.addEventListener("input", function () {
@@ -319,7 +361,7 @@
     if (listbox.hidden && e.key === "ArrowDown" && search.value) { runSearch(); return; }
     if (e.key === "ArrowDown" && results.length) { e.preventDefault(); active = (active + 1) % results.length; drawList(results.length); scrollActive(); }
     else if (e.key === "ArrowUp" && results.length) { e.preventDefault(); active = (active - 1 + results.length) % results.length; drawList(results.length); scrollActive(); }
-    else if (e.key === "Enter") { e.preventDefault(); if (active >= 0) pick(active); }
+    else if (e.key === "Enter") { e.preventDefault(); if (active >= 0) choose(active); }
     else if (e.key === "Escape") { closeList(); }
   });
   function scrollActive() {
@@ -329,57 +371,69 @@
   listbox.addEventListener("mousedown", function (e) { e.preventDefault(); });
   listbox.addEventListener("click", function (e) {
     var li = e.target.closest(".area-opt");
-    if (li) pick(+li.getAttribute("data-i"));
+    if (li) choose(+li.getAttribute("data-i"));
   });
   search.addEventListener("blur", function () { setTimeout(closeList, 120); });
   root.querySelector(".area-search-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    if (active >= 0) pick(active);
+    if (active >= 0) choose(active);
   });
 
-  // ---------- 選択欄の操作 ----------
+  // ---------- 選択欄・ボタン ----------
   prefSelect.addEventListener("change", function () {
-    if (prefSelect.value) setArea({ pref: prefSelect.value, muni: null });
-    else setArea(null);
+    if (prefSelect.value) pick({ pref: prefSelect.value, muni: null });
   });
   muniSelect.addEventListener("change", function () {
     if (!area || !muniData) return;
-    var m = muniData.byCode[muniSelect.value];
-    setArea({ pref: area.pref, muni: m || null });
-    if (m) goCards();
+    setArea({ pref: area.pref, muni: muniData.byCode[muniSelect.value] || null });
   });
   prefAllBtn.addEventListener("click", function () { if (area) setArea({ pref: area.pref, muni: null }); });
-
-  // よく調べられている地域（ワンタップ）
+  changeBtn.addEventListener("click", function () {
+    if (root.getAttribute("data-mode") === "pick" && area) {
+      setMode("view");
+      return;
+    }
+    setMode("pick");
+    jumpTo(picker);
+    // パソコンでは名前の入力欄へ。スマホではキーボードが急に出ないよう、見出しへ
+    if (window.matchMedia("(pointer: fine)").matches) search.focus({ preventScroll: true });
+    else picker.querySelector("h2").focus({ preventScroll: true });
+  });
   root.querySelectorAll("[data-area]").forEach(function (b) {
     b.addEventListener("click", function () {
-      areaFromCode(b.getAttribute("data-area")).then(function (a) { setArea(a); goCards(); });
+      areaFromCode(b.getAttribute("data-area")).then(pick);
     });
   });
-
   // URL をコピー
   shareBtn.addEventListener("click", function () {
     var url = location.origin + location.pathname + "?area=" + areaCode(area);
-    var done = function () { shareMsg.textContent = "この地域を開くURLをコピーしました：" + url; };
+    var show = function (msg) { shareMsg.textContent = msg + url; };
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(url).then(done, function () { shareMsg.textContent = "このURLを共有してください：" + url; });
+      navigator.clipboard.writeText(url).then(function () { show("この地域を開くURLをコピーしました："); }, function () { show("このURLを共有してください："); });
     } else {
-      shareMsg.textContent = "このURLを共有してください：" + url;
+      show("このURLを共有してください：");
     }
   });
 
-  // ---------- 調べられることのカード ----------
+  // ---------- カード ----------
   var cardCtx = null;
   function renderCards() {
-    if (!cardsBox || !window.RegionCards) return;
-    if (!cardCtx) cardCtx = window.RegionCards.init(cardsBox, { prefByCode: prefByCode });
+    if (!window.RegionCards) return;
+    if (!cardCtx) cardCtx = window.RegionCards.init(cardsBox, prefByCode);
     window.RegionCards.render(cardCtx, area);
   }
 
   // ---------- 戻る・進む ----------
   window.addEventListener("popstate", function () {
     var code = new URL(location.href).searchParams.get("area");
-    areaFromCode(code).then(function (a) { setArea(a, { push: false }); });
+    areaFromCode(code).then(function (a) {
+      var wasPick = root.getAttribute("data-mode") === "pick";
+      setArea(a, { push: false });
+      setMode(a ? "view" : "pick");
+      // 選ぶ画面が開いたり閉じたりして表示がずれるときだけ、地域の見出し（または地図）の位置へ移動する
+      if (a && wasPick) showCards();
+      else if (!a) jumpTo(picker);
+    });
   });
 
   // ---------- はじめ ----------
@@ -387,18 +441,15 @@
   fillPrefSelect();
   var first = new URL(location.href).searchParams.get("area");
   if (first) {
-    // 地域つきの URL で開いたとき（共有されたリンクなど）は、選んだ地域とカードのところから見せる
-    setArea(null, { push: false });
+    // 地域つきの URL で開いたとき（共有されたリンクなど）は、選ぶ画面を閉じて、その地域の情報をすぐ見せる
+    setMode("view");
     areaFromCode(first).then(function (a) {
       setArea(a, { push: false });
+      setMode(a ? "view" : "pick");
       history.replaceState({ area: areaCode(a) }, "", location.href);
-      // 文字（Webフォント）が読み込まれて高さが変わったあとに移動する
-      var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-      ready.then(function () {
-        if (a && !location.hash) document.getElementById("area-result").scrollIntoView({ block: "start", behavior: "instant" });
-      });
     });
   } else {
     setArea(null, { push: false });
+    setMode("pick");
   }
 })();

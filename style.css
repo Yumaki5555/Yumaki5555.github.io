@@ -340,9 +340,37 @@ section[id] { scroll-margin-top: calc(var(--header-h) + 8px); }
 
 .nowrap { white-space: nowrap; }
 
-/* ---------- 掲載情報についての補足 ---------- */
-.policy .policy-sub { margin: 22px 0 8px; color: var(--navy); font-size: 1.12rem; font-weight: 900; }
-.policy .policy-small { color: var(--muted); font-size: .92rem; }
+/* ---------- 掲載情報についての補足（長い説明は折りたたむ） ---------- */
+.policy-points { margin: 4px 0 18px; padding-left: 1.3em; }
+.policy-points li { margin: 0 0 4px; }
+.policy-more { border-top: 1px solid var(--line); }
+.policy-more:last-child { border-bottom: 1px solid var(--line); }
+.policy-more summary {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 52px; padding: 10px 4px; cursor: pointer; list-style: none;
+  color: var(--navy); font-size: 1.05rem; font-weight: 900;
+}
+.policy-more summary::-webkit-details-marker { display: none; }
+.policy-more summary::before {
+  content: ""; flex: none; width: 10px; height: 10px; margin: 0 4px;
+  border-right: 2.5px solid var(--accent); border-bottom: 2.5px solid var(--accent);
+  transform: rotate(-45deg);
+}
+.policy-more[open] summary::before { transform: rotate(45deg); }
+.policy-more ul { margin: 0 0 14px; padding-left: 1.3em; font-size: .97rem; }
+.policy-more li { margin: 0 0 6px; }
+.policy-terms { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 0 0 14px; font-size: .97rem; }
+.policy-terms dt { font-weight: 900; color: var(--navy); }
+.policy-terms dd { margin: 0; }
+@media (max-width: 639px) {
+  .policy-terms { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .policy-terms dd { margin-bottom: 8px; }
+}
+.scope-key { font-weight: 900; white-space: nowrap; }
+.scope-key.is-exact { color: var(--accent-dark); }
+.scope-key.is-wider { color: #8A5A00; }
+.scope-key.is-top { color: #59656F; }
+.scope-key.is-all { color: var(--navy); }
 
 /* ---------- スマホでは、12サイトのカードを分類ごとに横に並べ、スワイプで見る（ページが縦に長くなりすぎないように） ---------- */
 .swipe-hint { display: none; }

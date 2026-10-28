@@ -23,13 +23,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
 <!-- ?v= の日付は、css・js を直したら書きかえる（古いファイルが残らないように） -->
-<link rel="stylesheet" href="style.css?v=202610282">
-<link rel="stylesheet" href="area.css?v=202610282">
-<script src="sites.js?v=202610282" defer></script>
-<script src="main.js?v=202610282" defer></script>
-<script src="data/japan-map.js?v=202610282" defer></script>
-<script src="region-topics.js?v=202610283" defer></script>
-<script src="region.js?v=202610282" defer></script>
+<link rel="stylesheet" href="style.css?v=20261028g">
+<link rel="stylesheet" href="area.css?v=20261028g">
+<script src="sites.js?v=20261028g" defer></script>
+<script src="site-cards.js?v=20261028g" defer></script>
+<script src="main.js?v=20261028g" defer></script>
+<script src="data/japan-map.js?v=20261028g" defer></script>
+<script src="region-topics.js?v=20261028g" defer></script>
+<script src="region.js?v=20261028g" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
@@ -65,68 +66,81 @@
     </div>
   </section>
 
-  <section class="area" id="area" aria-labelledby="h-area">
+  <section class="area" id="area" aria-labelledby="h-area" data-mode="pick">
     <div class="wrap">
-      <div class="area-grid">
-        <div class="section-head area-head">
-          <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg></span>
-          <div>
-            <h2 id="h-area">地域から調べる</h2>
-            <p>地図で都道府県を押すか、市区町村の名前で探してください。選んだ地域の情報を、それぞれの専門サイトで調べられます。</p>
+
+      <!-- 選ぶ画面：地図・名前で探す・一覧から選ぶ。地域を選ぶと閉じて、下の情報の画面を見せる -->
+      <div class="area-picker" id="area-picker">
+        <div class="area-grid">
+          <div class="section-head area-head">
+            <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg></span>
+            <div>
+              <h2 id="h-area" tabindex="-1">地域から調べる</h2>
+              <p>地図で都道府県を押すか、名前で探してください。選んだ地域の情報を、8つの専門サイトで調べられます。</p>
+            </div>
           </div>
-        </div>
 
-        <div class="area-map">
-          <svg class="jmap" role="group" aria-label="日本地図。都道府県を押すと選べます。矢印キーで都道府県を移り、Enterキーで選べます。"></svg>
-          <p class="jmap-hint">都道府県を押すと選べます</p>
-        </div>
+          <form class="area-search-form" role="search" action="#">
+            <label for="area-search">名前で探す（市区町村・都道府県）</label>
+            <div class="combo">
+              <svg class="ico ico-search" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg>
+              <input id="area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="area-search-list" autocomplete="off" placeholder="例：江東区、いちかわ、ふくしま">
+              <ul id="area-search-list" class="area-list" role="listbox" aria-label="地域の候補" hidden></ul>
+            </div>
+          </form>
 
-        <form class="area-search-form" role="search" action="#">
-          <label for="area-search">市区町村・都道府県の名前で探す</label>
-          <div class="combo">
-            <svg class="ico ico-search" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20.5 20.5"/></svg>
-            <input id="area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="area-search-list" autocomplete="off" placeholder="例：江東区、いちかわ、札幌">
-            <ul id="area-search-list" class="area-list" role="listbox" aria-label="地域の候補" hidden></ul>
+          <div class="area-map">
+            <div class="jmap-zoom" role="group" aria-label="地図を地方ごとに大きくする">
+              <button type="button" class="zoom-btn" data-zoom="all" aria-pressed="true">全国</button>
+              <button type="button" class="zoom-btn" data-zoom="1-7" aria-pressed="false">北海道・東北</button>
+              <button type="button" class="zoom-btn" data-zoom="8-14" aria-pressed="false">関東</button>
+              <button type="button" class="zoom-btn" data-zoom="15-23" aria-pressed="false">中部</button>
+              <button type="button" class="zoom-btn" data-zoom="24-30" aria-pressed="false">近畿</button>
+              <button type="button" class="zoom-btn" data-zoom="31-39" aria-pressed="false">中国・四国</button>
+              <button type="button" class="zoom-btn" data-zoom="40-46" aria-pressed="false">九州</button>
+            </div>
+            <div class="jmap-frame">
+              <svg class="jmap" role="group" aria-label="日本地図。都道府県を押すと選べます。矢印キーで都道府県を移り、Enterキーで選べます。"></svg>
+              <p class="jmap-name" aria-hidden="true"></p>
+            </div>
+            <p class="jmap-hint">都道府県を押すと選べます。小さい県は、上のボタンで地方ごとに大きくできます。</p>
           </div>
-        </form>
 
-        <div class="area-panel">
-          <p class="area-or">または一覧から選ぶ</p>
-
-          <div class="area-selects">
+          <div class="area-panel">
             <div class="field">
-              <label for="area-pref">都道府県</label>
+              <label for="area-pref">一覧から選ぶ（都道府県）</label>
               <select id="area-pref"></select>
             </div>
-            <div class="field area-muni-field" hidden>
-              <label for="area-muni">市区町村</label>
-              <select id="area-muni"></select>
+            <div>
+              <p class="area-quick-label">地域の選択例</p>
+              <ul class="area-quick">
+                <li><button type="button" class="chip-btn" data-area="07">福島県</button></li>
+                <li><button type="button" class="chip-btn" data-area="131083">東京都 江東区</button></li>
+                <li><button type="button" class="chip-btn" data-area="122033">千葉県 市川市</button></li>
+                <li><button type="button" class="chip-btn" data-area="112038">埼玉県 川口市</button></li>
+                <li><button type="button" class="chip-btn" data-area="271004">大阪府 大阪市</button></li>
+                <li><button type="button" class="chip-btn" data-area="011002">北海道 札幌市</button></li>
+              </ul>
             </div>
-          </div>
-
-          <div>
-            <p class="area-quick-label">例：よく調べられている地域</p>
-            <ul class="area-quick">
-              <li><button type="button" class="chip-btn" data-area="131083">東京都 江東区</button></li>
-              <li><button type="button" class="chip-btn" data-area="122033">千葉県 市川市</button></li>
-              <li><button type="button" class="chip-btn" data-area="112038">埼玉県 川口市</button></li>
-              <li><button type="button" class="chip-btn" data-area="271004">大阪府 大阪市</button></li>
-              <li><button type="button" class="chip-btn" data-area="011002">北海道 札幌市</button></li>
-            </ul>
           </div>
         </div>
       </div>
 
+      <!-- 情報の画面：選んだ地域の名前（スクロールしても上に残る）と8つのカード -->
       <div class="area-result" id="area-result" aria-labelledby="area-result-title">
         <div class="area-current">
+          <svg class="area-mini" aria-hidden="true" focusable="false" hidden></svg>
           <div class="area-current-main" aria-live="polite">
             <span class="area-current-label">選んでいる地域</span>
             <p class="area-current-name" id="area-result-title"><span class="crumb-now">全国</span></p>
           </div>
-          <a class="btn-ghost area-change" href="#area">地域を変える</a>
+          <button type="button" class="btn-ghost area-change" aria-controls="area-picker" aria-expanded="true">地域を選ぶ</button>
         </div>
         <div class="area-sub">
-          <p class="area-current-note"></p>
+          <div class="area-narrow" hidden>
+            <label for="area-muni">市区町村で絞り込む</label>
+            <select id="area-muni"></select>
+          </div>
           <div class="area-sub-actions">
             <button type="button" class="btn-line area-pref-all" hidden></button>
             <button type="button" class="btn-line area-share" hidden>
@@ -136,7 +150,9 @@
           </div>
         </div>
         <p class="area-share-msg" role="status"></p>
-        <div id="area-cards"></div>
+        <div id="area-cards">
+          <p class="area-fallback">地図と地域ごとの情報を表示できませんでした（JavaScript が読み込めないか、無効になっています）。各サイトは、下の「テーマから探す」から開けます。</p>
+        </div>
       </div>
     </div>
   </section>
@@ -163,7 +179,16 @@
           <p class="swipe-hint"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h15M14 7l5 5-5 5"/></svg>横にスワイプすると、ほかのサイトも見られます</p>
         </div>
       </div>
-      <div class="cards" data-category="research"></div>
+      <div class="cards" data-category="research"><!-- cards:start（_tools/build_cards.mjs が書きこむ。手で直さない） -->
+<article class="card cat-research" id="site-policy-log"><h3 class="card-title">政策ログJP</h3><div class="card-shot"><img src="img/shots/policy-log.webp" alt="政策ログJPのトップ画面。追跡中・審議中・成立などの法案の数と、意見募集・法案の今・機関で探すのメニューが並んでいる" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">国の政策や法案は、今どこまで進んでいる？</p><p class="card-desc">法案を「検討中・審議中・成立」などの段階や、省庁・テーマから探せます。閣議決定や国会の動きも時系列で追えます。</p><div class="card-extra"><p class="card-credit"><span>運営：Policy-log.jpさん</span><span>X：<a href="https://x.com/watermark_hd1" target="_blank" rel="noopener noreferrer">@watermark_hd1<span class="sr-only">（新しいタブで開きます）</span></a></span></p></div><div class="card-foot"><a class="btn-site" href="https://policy-log.jp/" target="_blank" rel="noopener noreferrer" aria-label="政策ログJPのサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-research" id="site-mou-map"><h3 class="card-title">日本と世界のMOU・協定マップ</h3><div class="card-shot"><img src="img/shots/mou-map.webp" alt="MOU・協定マップの画面。キーワードで探す検索欄と、登録した協定の数を都道府県ごとに色分けした日本地図" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">日本の国や自治体は、海外とどんな約束をしている？</p><p class="card-desc">海外とのMOU・協定を、日本地図や相手国・分野から検索。取り決めの内容、地域への影響、有効・終了・未確認の状況を調べられます。</p><div class="card-extra"><p class="card-highlight">「まず3分でわかる」：5つの図でMOUの仕組みを解説</p><p class="card-updated" data-update-url="https://yumaki5555.github.io/mou-map/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/mou-map/" target="_blank" rel="noopener noreferrer" aria-label="日本と世界のMOU・協定マップのサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-research" id="site-zititai-karte"><h3 class="card-title">自治体カルテ</h3><div class="card-shot"><img src="img/shots/zititai-karte.webp" alt="自治体カルテの全国ランキング画面。自治体ごとの歳出総額を横棒グラフで並べている" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">自分のまちのお金は、どこから入り、何に使われている？</p><p class="card-desc">自治体名で検索して、歳入・歳出の内訳や人口の推移をグラフで確認。全国ランキングや、最大3自治体の比較もできます。</p><div class="card-extra"><p class="card-credit"><span>運営：自治体カルテさん</span><span>X：<a href="https://x.com/zititai_karte" target="_blank" rel="noopener noreferrer">@zititai_karte<span class="sr-only">（新しいタブで開きます）</span></a></span></p></div><div class="card-foot"><a class="btn-site" href="https://www.zititai-karte.com/" target="_blank" rel="noopener noreferrer" aria-label="自治体カルテのサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-research" id="site-tabunka-yosan"><h3 class="card-title">全国 多文化共生予算マップ</h3><div class="card-shot"><img src="img/shots/tabunka-yosan.webp" alt="全国 多文化共生予算マップの浜松市のページ。2026年度当初予算の多文化共生の直接関連事業の合計3億4,976.7万円と、財源の内訳・外国人住民数が並んでいる" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">あなたの自治体は、多文化共生に何にいくら使っている？</p><p class="card-desc">日本語教室・相談窓口・学校での日本語指導などの予算と決算を、地図や自治体名から検索。国・県・自治体の財源の内訳や、ほかの自治体・過去の年度との比較も見られます（調べた自治体から順に公開中）。</p><div class="card-extra"><p class="card-highlight">「3分でわかる」：5つの図で予算の仕組みを解説</p><p class="card-updated" data-update-url="https://yumaki5555.github.io/tabunka-yosan/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/tabunka-yosan/" target="_blank" rel="noopener noreferrer" aria-label="全国 多文化共生予算マップのサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-research" id="site-zairyu"><h3 class="card-title">数でみる在留外国人</h3><div class="card-shot"><img src="img/shots/zairyu.webp" alt="数でみる在留外国人の画面。都道府県ごとの在留外国人の数を、色の濃さで表した日本地図" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">日本に住む外国人は、どこに、どの国から来ている？</p><p class="card-desc">都道府県・市区町村・国籍・在留資格から人数を検索。1959年からの移り変わりを、地図の色の変化で再生して見られます。</p><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/zairyu/index.html" hidden></p><div class="pair"><span class="pair-label">まずは図で知りたい方はこちら</span><a class="pair-link" href="https://nihon-kurashi-zairyu-guide.sunlitmole256.chatgpt.site/" target="_blank" rel="noopener noreferrer">図で見る、日本に住む外国人<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg><span class="sr-only">（新しいタブで開きます）</span></a></div></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/zairyu/index.html" target="_blank" rel="noopener noreferrer" aria-label="数でみる在留外国人のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-research" id="site-minpaku-map"><h3 class="card-title">民泊・旅館業マップ</h3><div class="card-shot"><img src="img/shots/minpaku-map.webp" alt="民泊・旅館業マップの画面。東京都心の地図に、民泊・特区民泊・旅館やホテル・簡易宿所の施設が色分けした点で表示されている" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">近所に、民泊やホテルはどれだけある？</p><p class="card-desc">住所や市区町村名で探して、民泊・旅館業の施設を地図上の点で確認。市区町村ごとの件数ランキングや、前回からの増減も見られます。</p><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/minpaku-map/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/minpaku-map/" target="_blank" rel="noopener noreferrer" aria-label="民泊・旅館業マップのサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-research" id="site-mosque-map"><h3 class="card-title">日本のモスク情報</h3><div class="card-shot"><img src="img/shots/mosque-map.webp" alt="日本のモスク情報の地図画面。日本地図にモスク・礼拝所の位置がピンで示され、右側に施設の一覧が並んでいる" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">モスクは、どこにあり、だれが運営している？</p><p class="card-desc">地図や都道府県からモスク・礼拝所を探し、運営団体や建設計画、寄付の募集、葬儀・土葬墓地の調査結果を出典付きで確認できます。</p><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/mosque-map/" hidden></p><div class="pair"><span class="pair-label">まずは図で知りたい方はこちら</span><a class="pair-link" href="https://mosque-info-explorer.sunlitmole256.chatgpt.site/" target="_blank" rel="noopener noreferrer">日本のモスクを知る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg><span class="sr-only">（新しいタブで開きます）</span></a></div></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/mosque-map/" target="_blank" rel="noopener noreferrer" aria-label="日本のモスク情報のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-research" id="site-kansensho"><h3 class="card-title">世界の感染症と日本の水際対策</h3><div class="card-shot"><img src="img/shots/kansensho.webp" alt="世界の感染症と日本の水際対策の国別比較画面。国ごとの結核の罹患率を横棒グラフで比べている" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">HIV・梅毒・はしか・結核は、どの国で多い？</p><p class="card-desc">国別の感染状況をグラフで比べ、国や在留資格から入国時の検査を確認。日本の患者数の推移や治療費の負担も見られます。</p><div class="card-extra"><p class="card-highlight">「まず3分でわかる」：結核編・HIV/エイズ編</p><p class="card-updated" data-update-url="https://yumaki5555.github.io/kansensho/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/kansensho/" target="_blank" rel="noopener noreferrer" aria-label="世界の感染症と日本の水際対策のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<!-- cards:end --></div>
     </div>
   </section>
 
@@ -176,7 +201,10 @@
           <p>図やグラフ、クイズを使って、はじめての人にもわかりやすく紹介しているサイトです。</p>
         </div>
       </div>
-      <div class="cards" data-category="learn"></div>
+      <div class="cards" data-category="learn"><!-- cards:start（_tools/build_cards.mjs が書きこむ。手で直さない） -->
+<article class="card cat-learn" id="site-mosque-guide"><h3 class="card-title">日本のモスクを知る</h3><div class="card-shot"><img src="img/shots/mosque-guide.webp" alt="日本のモスクを知るの画面。都道府県を四角で並べた地図に、それぞれのモスクの数が書かれている" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">モスクってどんな場所？ 日本のどこにある？</p><p class="card-desc">地図やテーマ別の図解で、モスクの場所や運営する団体をやさしく紹介。好きなテーマを選んで10問のクイズにも挑戦できます。</p><div class="card-extra"><div class="pair"><span class="pair-label">詳しく調べたい方はこちら</span><a class="pair-link" href="https://yumaki5555.github.io/mosque-map/" target="_blank" rel="noopener noreferrer">日本のモスク情報<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg><span class="sr-only">（新しいタブで開きます）</span></a></div></div><div class="card-foot"><a class="btn-site" href="https://mosque-info-explorer.sunlitmole256.chatgpt.site/" target="_blank" rel="noopener noreferrer" aria-label="日本のモスクを知るのサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-learn" id="site-zairyu-guide"><h3 class="card-title">図で見る、日本に住む外国人</h3><div class="card-shot"><img src="img/shots/zairyu-guide.webp" alt="図で見る、日本に住む外国人の画面。外国人全体のうち、仕事・技能実習の資格の人の割合を示す円グラフ" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">日本に住む外国人は、どんな目的でくらしている？</p><p class="card-desc">仕事・家族・永住などの在留資格を、円グラフや「100人に置きかえた図」で紹介。年ごとの変化や地域の比較、クイズもあります。</p><div class="card-extra"><div class="pair"><span class="pair-label">詳しく調べたい方はこちら</span><a class="pair-link" href="https://yumaki5555.github.io/zairyu/index.html" target="_blank" rel="noopener noreferrer">数でみる在留外国人<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg><span class="sr-only">（新しいタブで開きます）</span></a></div></div><div class="card-foot"><a class="btn-site" href="https://nihon-kurashi-zairyu-guide.sunlitmole256.chatgpt.site/" target="_blank" rel="noopener noreferrer" aria-label="図で見る、日本に住む外国人のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<!-- cards:end --></div>
     </div>
   </section>
 
@@ -189,12 +217,15 @@
           <p>意見を募集している案件や署名活動を探して、自分の考えを届けられます。</p>
         </div>
       </div>
-      <div class="cards" data-category="participate"></div>
+      <div class="cards" data-category="participate"><!-- cards:start（_tools/build_cards.mjs が書きこむ。手で直さない） -->
+<article class="card cat-participate" id="site-pubcome"><h3 class="card-title">パブコメ掲示板</h3><div class="card-shot"><img src="img/shots/pubcome.webp" alt="パブコメ掲示板の画面。国・都道府県・市区町村の切りかえと、キーワード・担当省庁・テーマで案件を探す検索欄" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">いま、国や自治体はどんな意見を募集している？</p><p class="card-desc">国・都道府県・市区町村の募集中の案件を、キーワードや担当省庁で検索。締切が近い順に並べ、公式の提出先へ進めます。</p><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/pubcome/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/pubcome/" target="_blank" rel="noopener noreferrer" aria-label="パブコメ掲示板のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<article class="card cat-participate" id="site-shomei"><h3 class="card-title">署名掲示板</h3><div class="card-shot"><img src="img/shots/shomei.webp" alt="署名掲示板の画面。キーワード・テーマ・地域・並び順で署名を探す検索欄" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div><p class="card-q">全国で、いまどんな署名が集まっている？</p><p class="card-desc">change.orgとVoiceの署名を、キーワードや都道府県で検索。署名が多い順・最近伸びている順・終了日が近い順に並べ替えられます。</p><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/shomei/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/shomei/" target="_blank" rel="noopener noreferrer" aria-label="署名掲示板のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
+<!-- cards:end --></div>
     </div>
   </section>
 
   <noscript>
-    <div class="wrap"><p class="noscript">地図と地域の選択、サイトの一覧を表示するには、ブラウザの JavaScript を有効にしてください。</p></div>
+    <div class="wrap"><p class="noscript">地図と地域の選択を使うには、ブラウザの JavaScript を有効にしてください。12のサイトは、上の「テーマから探す」から開けます。</p></div>
   </noscript>
 
   <section class="about" id="about" aria-labelledby="h-about">
@@ -231,15 +262,61 @@
         </h2>
         <p>本サイトは、公的機関の資料、公開統計、一般に公開されている情報などを参考に、調査や学習に役立つWebサイトを案内するものです。</p>
         <p>掲載情報は、特定の国籍、宗教、民族、個人、団体に対する差別、偏見、嫌がらせを目的とするものではありません。</p>
-        <p>掲載されている情報の時点や調査範囲、出典は各サイトで確認してください。</p>
-        <p>情報の正確性には配慮していますが、更新時期や掲載条件などによって、実際の状況と異なる場合があります。</p>
-        <p>各サイトの情報を利用する際は、出典と更新日を確認し、ご自身で判断してください。</p>
-        <h3 class="policy-sub">「地域から調べる」について</h3>
-        <p>カードの数値は、地域を選んだときに、各専門サイトが公開しているデータをその場で読み取って表示しています。数値の下に、集計の時点と範囲を書いています。</p>
-        <p>サイトに載っていない地域や、まだ調べていない地域は「0件」とは書かず、「掲載対象外」「未調査」「掲載なし（0件とは限りません）」のように分けて表示します。</p>
-        <p>カードのボタンの上には、どのページが開くかを書いています。✓（緑）は選んだ地域のページ、！（茶）は市区町村のページがないため都道府県のページ、－（灰）は地域が引き継がれずサイトのトップが開くことを表します。</p>
-        <p class="policy-small">日本地図：国土数値情報（行政区域データ）国土交通省 をもとに、スマートニュース メディア研究所が簡略化したデータを加工して作成（沖縄県は左上の枠に拡大して表示）。市区町村の一覧：総務省「全国地方公共団体コード」（令和6年1月1日更新）。政令指定都市は市全体で1つとしています。</p>
-        <p class="policy-note">カードの画面例は、2026年10月28日に各サイトを撮影した実際の画面です。件数などの数字は撮影した時点のもので、最新の内容は各サイトで確認してください。<br>カードの「ページ更新日」は、そのサイトのページが最後に公開された日を自動で読み取って表示しています。読み取れないサイトには表示していません。</p>
+        <ul class="policy-points">
+          <li>掲載されている情報の時点や調査範囲、出典は各サイトで確認してください。</li>
+          <li>情報の正確性には配慮していますが、更新時期や掲載条件などによって、実際の状況と異なる場合があります。</li>
+          <li>各サイトの情報を利用する際は、出典と更新日を確認し、ご自身で判断してください。</li>
+        </ul>
+
+        <details class="policy-more">
+          <summary>「地域から調べる」の数値の取り方</summary>
+          <ul>
+            <li>地域を選んだときに、各専門サイトが公開しているデータファイルをブラウザで読み込み、その地域の分を数えて表示します。このサイトに数値を書き写してはいないので、各サイトが更新されると、数値も新しくなります。</li>
+            <li>数値は、各サイトが集計した時点のものです（リアルタイムの値ではありません）。カードに「〇年〇月末時点」「〇月〇日集計」のように書いています。</li>
+            <li>読み込むのは、在留外国人＝その地域のページ、モスク＝施設の一覧（CSV）、民泊・パブコメ・署名＝各サイトのページに入っているデータ、多文化共生予算・MOU＝件数のまとめファイルです。自治体カルテはほかの方のサイトのため、数値は読み込みません。</li>
+            <li>同じデータは、ページを開いている間は読み直しません。地域を変えても、一度読んだデータを使います。地域を選ぶまでは、何も読み込みません。</li>
+            <li>パブコメは、締切日が今日以降の案件だけを「募集中」として数えます。MOUは、有効確認・有効性未確認・終了確認を分けて数え、合計にまとめません。署名は、その都道府県に関係するものと、地域が書かれていないもの（全国向けなど）を分けて数えます。</li>
+          </ul>
+        </details>
+
+        <details class="policy-more">
+          <summary>「0件」とそれ以外の表示の違い</summary>
+          <dl class="policy-terms">
+            <dt>確認済みで0件</dt><dd>サイトが調べた範囲・掲載中のものの中に、該当がなかったもの。</dd>
+            <dt>データ未掲載</dt><dd>サイトの対象の県ですが、その市区町村の情報が載っていないもの（0件とは限りません）。</dd>
+            <dt>調査対象外</dt><dd>サイトが集めていない地域（例：民泊・旅館業マップの対象外の県、パブコメ掲示板が集めていない市町村）。</dd>
+            <dt>未確認</dt><dd>まだ調べていない、または金額などを確認できていないもの（0件・0円ではありません）。</dd>
+            <dt>取得失敗</dt><dd>データを読み込めなかったもの（0件ではありません）。15秒たっても読み込めないときも、こう表示します。リンクはそのまま使えます。</dd>
+          </dl>
+        </details>
+
+        <details class="policy-more">
+          <summary>カードのボタンで開くページ</summary>
+          <dl class="policy-terms">
+            <dt><span class="scope-key is-exact">✓ 地域を引き継ぎ</span></dt><dd>選んだ地域（市区町村または都道府県）を選んだ状態で、専門サイトが開きます。</dd>
+            <dt><span class="scope-key is-wider">！ 都道府県まで</span></dt><dd>専門サイトに市区町村のページがないため、その都道府県のページが開きます。</dd>
+            <dt><span class="scope-key is-top">－ 引き継ぎなし</span></dt><dd>地域は引き継がれず、専門サイトのトップページが開きます。</dd>
+            <dt><span class="scope-key is-all">○ 全国</span></dt><dd>地域を選ぶ前は、各サイトの全国のページが開きます。</dd>
+          </dl>
+        </details>
+
+        <details class="policy-more">
+          <summary>日付の見方（データの集計日とページの更新日）</summary>
+          <ul>
+            <li><strong>データの集計日</strong>：「地域から調べる」のカードに書いた「〇年〇月末時点」「〇月〇日集計」。その数値を、各サイトが集計した日です。</li>
+            <li><strong>ページの更新日</strong>：「テーマから探す」のカードの「ページの更新日」。そのサイトのページを最後に公開し直した日を、自動で読み取って表示しています（読み取れないサイトには表示していません）。データの集計日とは異なります。</li>
+            <li><strong>このページの更新日</strong>：いちばん下に書いた日付。このサイト自体を最後に直した日です。</li>
+          </ul>
+        </details>
+
+        <details class="policy-more">
+          <summary>地図・市区町村の一覧・画面例の出典</summary>
+          <ul>
+            <li>日本地図：国土数値情報（行政区域データ）国土交通省 をもとに、スマートニュース メディア研究所が簡略化したデータを加工して作成。沖縄県は左上の枠に拡大して表示しています。</li>
+            <li>市区町村の一覧：総務省「全国地方公共団体コード」（令和6年1月1日更新）。政令指定都市は市全体で1つとしています。</li>
+            <li>カードの画面例は、2026年10月28日に各サイトを撮影した実際の画面です。件数などの数字は撮影した時点のもので、最新の内容は各サイトで確認してください。</li>
+          </ul>
+        </details>
       </div>
     </div>
   </section>

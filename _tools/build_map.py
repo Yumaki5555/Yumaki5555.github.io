@@ -167,11 +167,18 @@ def main():
     m = 7
     inset = [bx0 - m, by0 - m, bx1 - bx0 + m * 2, by1 - by0 + m * 2]
 
+    # 地方ごとに地図を大きくするときに使う、各都道府県の「いちばん大きい島」の範囲（離島で範囲が広がらないように）
+    def main_box(shapes):
+        best = max(shapes, key=lambda s: area_km2(s[0]))
+        pts = [proj(x, y) for x, y in best[0]]
+        xs2, ys2 = [q[0] for q in pts], [q[1] for q in pts]
+        return [min(xs2), min(ys2), max(xs2) - min(xs2), max(ys2) - min(ys2)]
+
     data = {
         "w": W,
         "h": H,
         "inset": inset,
-        "prefs": [[p["code"], p["name"], path_d(p["shapes"])] for p in sorted(prefs, key=lambda p: p["code"])],
+        "prefs": [[p["code"], p["name"], path_d(p["shapes"]), main_box(p["shapes"])] for p in sorted(prefs, key=lambda p: p["code"])],
     }
     js = (
         "// 都道府県の地図（_tools/build_map.py で作成。手で直さないでください）\n"
