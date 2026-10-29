@@ -1,4 +1,4 @@
-// 「テーマから探す」の12サイトのカードを作る
+// 「テーマから探す」の12サイトのカードを作る（アイコンの形は brand-icons.js）
 // ブラウザでは main.js が、手元では _tools/build_cards.mjs が使う
 // （build_cards.mjs で index.html にカードを書きこんでおくと、JavaScript が動かないときもカードが出る）
 (function (root) {
@@ -15,42 +15,36 @@
     });
   }
 
+  // カードは「アイコンとサイト名 → 1行の要約 → 要点 → 補足 → サイトを見る」の5段
   function cardHTML(site, siteById) {
-    var shot = site.shot
-      ? '<div class="card-shot"><img src="' + esc(site.shot) + '" alt="' + esc(site.alt || site.name + "の画面") +
-        '" width="800" height="450" loading="lazy" decoding="async" fetchpriority="low"></div>'
-      : "";
-    var highlight = site.highlight ? '<p class="card-highlight">' + esc(site.highlight) + "</p>" : "";
+    var icon = root.brandIcon ? root.brandIcon(site.icon) : "";
+    var points = (site.points || []).map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("");
+    var note = site.note ? '<p class="card-note">' + esc(site.note) + "</p>" : "";
     var credit = "";
     if (site.operator) {
       var handle = site.operator.x.replace(/^https?:\/\/(x|twitter)\.com\//, "@");
       credit =
-        '<p class="card-credit">' +
-          "<span>運営：" + esc(site.operator.name) + "</span>" +
-          '<span>X：<a href="' + esc(site.operator.x) + '" target="_blank" rel="noopener noreferrer">' +
+        '<p class="card-credit">運営：' + esc(site.operator.name) +
+          '（X <a href="' + esc(site.operator.x) + '" target="_blank" rel="noopener noreferrer">' +
             esc(handle) + '<span class="sr-only">（新しいタブで開きます）</span>' +
-          "</a></span>" +
-        "</p>";
+          "</a>）</p>";
     }
     var pair = "";
     var other = site.pair && siteById[site.pair.id];
     if (other) {
       pair =
-        '<div class="pair">' +
-          '<span class="pair-label">' + esc(site.pair.label) + "</span>" +
+        '<p class="pair"><span class="pair-label">' + esc(site.pair.label) + "：</span>" +
           '<a class="pair-link" href="' + esc(other.url) + '" target="_blank" rel="noopener noreferrer">' +
             esc(other.name) + EXTERNAL_ICON + '<span class="sr-only">（新しいタブで開きます）</span>' +
-          "</a>" +
-        "</div>";
+          "</a></p>";
     }
     return (
       '<article class="card cat-' + esc(site.category) + '" id="site-' + esc(site.id) + '">' +
-        '<h3 class="card-title">' + esc(site.name) + "</h3>" +
-        (shot || '<div class="card-shot" aria-hidden="true"></div>') +
-        '<p class="card-q">' + esc(site.q || "") + "</p>" +
-        '<p class="card-desc">' + esc(site.desc) + "</p>" +
+        '<div class="card-head">' + icon + '<h3 class="card-title">' + esc(site.name) + "</h3></div>" +
+        '<p class="card-summary">' + esc(site.summary || "") + "</p>" +
+        '<ul class="card-points">' + points + "</ul>" +
         '<div class="card-extra">' +
-          highlight +
+          note +
           credit +
           pair +
           // ページの更新日は、どのカードでも補足のいちばん下（ボタンのすぐ上）に置く

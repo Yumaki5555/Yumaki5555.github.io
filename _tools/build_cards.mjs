@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { window: {} };
 vm.createContext(ctx);
-for (const f of ["sites.js", "site-cards.js"]) vm.runInContext(fs.readFileSync(path.join(root, f), "utf8"), ctx);
+for (const f of ["sites.js", "brand-icons.js", "site-cards.js"]) vm.runInContext(fs.readFileSync(path.join(root, f), "utf8"), ctx);
 
 const file = path.join(root, "index.html");
 let html = fs.readFileSync(file, "utf8");

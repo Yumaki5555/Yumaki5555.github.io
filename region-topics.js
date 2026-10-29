@@ -173,7 +173,9 @@
   };
 
   // ---------- 8つのカード ----------
-  // q / desc … 地域名を入れた問いかけと、そのサイトで分かること（n＝選んだ地域の名前、p＝都道府県名）
+  // icon   … アイコンの形（brand-icons.js の名前。リンク先のファビコンと同じ形）
+  // q      … 地域名を入れた1行の問いかけ（n＝選んだ地域の名前、a＝選んだ地域）
+  // see    … そのサイトで見られることを短く（文字列、または n・a を受け取る関数）
   // link(a)  … データを読まずに決められるリンク { href, scope, text }
   // resolve(a) … データを読んで { stat, href?, scope?, text? } を返す（なければ数値は出さない）
   //   stat … { value: 大きく出す文, sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし） }
@@ -184,18 +186,6 @@
     // 地域では分けられない、国全体・世界の情報（地域を選んでも中身は変わらない）
     { id: "nation", mark: "D", title: "全国共通の情報も調べる", lead: "国全体・世界の情報です。どの地域を選んでも、同じページが開きます。" }
   ];
-  var ICONS = {
-    people: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.4 2.8-5.3 5.5-5.3s4.9 1.9 5.5 5.3"/><circle cx="17" cy="9" r="2.5"/><path d="M15.8 14.3c2.4.2 4 1.9 4.7 5.2"/>',
-    mosque: '<path d="M12 3.5c2.6 2 4.5 3.6 4.5 6.2H7.5c0-2.6 1.9-4.2 4.5-6.2z"/><path d="M6 20.5v-8.3h12v8.3"/><path d="M10 20.5v-3.3a2 2 0 0 1 4 0v3.3"/><path d="M3.5 20.5h17M3.8 20.5V9.8M3.8 9.8l.9-2.3.9 2.3M20.2 20.5V9.8M20.2 9.8l-.9-2.3-.9 2.3"/>',
-    house: '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.6v10.4h13V9.6"/><path d="M10 20v-5.5h4V20"/>',
-    yen: '<path d="M7 4.5l5 7 5-7M12 11.5v8.5M8 13h8M8 16.5h8"/>',
-    chart: '<path d="M4 20h16"/><rect x="5.5" y="11" width="3" height="7" rx=".6"/><rect x="10.5" y="7" width="3" height="11" rx=".6"/><rect x="15.5" y="13" width="3" height="5" rx=".6"/>',
-    handshake: '<path d="M2.5 11.5 6 8l3 1 3-2 3 .5 3.5 3.5"/><path d="M6 8v6l5 4.5c.8.7 2 .7 2.7-.1l4.3-4.4"/><path d="M12 7l-3.2 3.3c-.6.6-.6 1.5 0 2.1.6.6 1.5.6 2.1 0L13 10.5"/>',
-    comment: '<path d="M4.5 5.5h15v10h-8l-4.5 3.8v-3.8H4.5z"/><path d="M8 9.5h8M8 12.5h5"/>',
-    pen: '<path d="M4.5 19.5l1-4.2L15.8 5a1.8 1.8 0 0 1 2.6 0l.6.6a1.8 1.8 0 0 1 0 2.6L8.7 18.5z"/><path d="M13.8 7l3.2 3.2M4.5 19.5h15"/>',
-    capitol: '<path d="M3.5 9.5 12 4.5l8.5 5z"/><path d="M6.5 10.5v6.5M10 10.5v6.5M14 10.5v6.5M17.5 10.5v6.5"/><path d="M4.5 19.5h15"/>',
-    virus: '<circle cx="12" cy="12" r="4.8"/><path d="M12 3.5v3.7M12 16.8v3.7M3.5 12h3.7M16.8 12h3.7M6 6l2.6 2.6M15.4 15.4 18 18M18 6l-2.6 2.6M8.6 15.4 6 18"/>'
-  };
 
   var P = {}; // 都道府県コード → { name }（region.js から受け取る）
   function pname(a) { return P[a.pref].name; }
@@ -204,10 +194,10 @@
 
   var TOPICS = [
     {
-      id: "zairyu", group: "now", icon: "people", title: "在留外国人", site: "数でみる在留外国人",
+      id: "zairyu", group: "now", icon: "zairyu", title: "在留外国人", site: "数でみる在留外国人",
       top: GH + "zairyu/index.html",
       q: function (n) { return n ? n + "には外国人が何人住んでいる？" : "日本には外国人が何人住んでいる？"; },
-      desc: function (n) { return (n ? n + "の" : "") + "国籍別の人数・在留資格・年ごとの推移を見る"; },
+      see: "国籍・在留資格・年ごとの推移を見る",
       url: function (a) {
         var base = GH + "zairyu/";
         if (!a.muni) return base + "pref-" + ROMA[+a.pref - 1] + ".html";
@@ -240,7 +230,7 @@
       id: "mosque", group: "now", icon: "mosque", title: "モスク", site: "日本のモスク情報",
       top: GH + "mosque-map/",
       q: function (n) { return n ? n + "にモスクはある？" : "日本のどこにモスクがある？"; },
-      desc: function (n) { return (n ? n + "の" : "") + "モスクの場所・運営する団体・建設計画・墓地の情報を見る"; },
+      see: "施設の数・建設計画・墓地の情報を見る",
       link: function (a) {
         if (a.muni) {
           return {
@@ -268,10 +258,10 @@
       }
     },
     {
-      id: "minpaku", group: "now", icon: "house", title: "民泊・旅館業", site: "民泊・旅館業マップ",
+      id: "minpaku", group: "now", icon: "minpaku", title: "民泊・旅館業", site: "民泊・旅館業マップ",
       top: GH + "minpaku-map/",
       q: function (n) { return n ? n + "に民泊やホテルはどれだけある？" : "民泊やホテルは、どこに多い？"; },
-      desc: function (n) { return (n ? n + "の" : "") + "民泊・特区民泊・旅館業の施設の場所と件数、増減を見る"; },
+      see: "民泊・特区民泊・旅館業の件数と増減を見る",
       // 対象の15都道府県かどうかはデータを読まないと分からないので、読むまではトップ
       link: function () { return { href: GH + "minpaku-map/", scope: "top", text: "トップページが開きます（対象地域かどうか確認できていません）", pending: true }; },
       resolve: function (a) {
@@ -341,10 +331,10 @@
       }
     },
     {
-      id: "tabunka", group: "gov", icon: "yen", title: "多文化共生予算", site: "全国 多文化共生予算マップ",
+      id: "tabunka", group: "gov", icon: "tabunka", title: "多文化共生予算", site: "全国 多文化共生予算マップ",
       top: GH + "tabunka-yosan/",
       q: function (n) { return n ? n + "は多文化共生にいくら使っている？" : "自治体は多文化共生にいくら使っている？"; },
-      desc: function (n) { return (n ? n + "の" : "") + "予算額・事業の内容・使い道を、年度やほかの自治体と比べる"; },
+      see: "予算額・事業の内容・使い道を比べる",
       code: function (a) { return a.muni ? a.muni.code : prefCode6(a.pref); },
       link: function (a) { return { href: GH + "tabunka-yosan/#/m/" + this.code(a), scope: "exact", text: aname(a) + "のページが開きます" }; },
       resolve: function (a) {
@@ -373,10 +363,10 @@
       }
     },
     {
-      id: "karte", group: "gov", icon: "chart", title: "自治体カルテ", site: "自治体カルテ",
+      id: "karte", group: "gov", icon: "karte", title: "自治体カルテ", site: "自治体カルテ",
       top: "https://www.zititai-karte.com/",
       q: function (n) { return n ? n + "のお金と人口は、どうなっている？" : "自治体のお金と人口は、どうなっている？"; },
-      desc: function (n) { return (n ? n + "の" : "") + "人口・出生、歳入と歳出の内訳を、ほかの自治体と比べる"; },
+      see: "歳入・歳出の内訳と人口をほかの自治体と比べる",
       link: function (a) {
         var base = "https://www.zititai-karte.com/";
         return a.muni
@@ -386,13 +376,13 @@
       none: "ほかの方が運営するサイトのため、数値はリンク先で確認してください。"
     },
     {
-      id: "mou", group: "gov", icon: "handshake", title: "MOU・海外との協定", site: "日本と世界のMOU・協定マップ",
+      id: "mou", group: "gov", icon: "mou", title: "MOU・海外との協定", site: "日本と世界のMOU・協定マップ",
       top: GH + "mou-map/",
       q: function (n, a) {
         if (!n) return "国や自治体は、海外とどんな協定を結んでいる？";
         return (a.muni ? n + "や" + pname(a) : n) + "は、海外とどんな協定を結んでいる？";
       },
-      desc: function () { return "相手の国・分野・取り決めの内容と、有効・終了・未確認の区分を見る"; },
+      see: "相手国・分野と、有効・終了・未確認の区分を見る",
       // 市区町村のページは、サイトが調べた政令指定都市20市だけ。データを読むまでは都道府県のページ
       link: function (a) {
         var href = GH + "mou-map/#/pref/" + a.pref;
@@ -442,13 +432,13 @@
       }
     },
     {
-      id: "pubcome", group: "voice", icon: "comment", title: "パブリックコメント", site: "パブコメ掲示板",
+      id: "pubcome", group: "voice", icon: "pubcome", title: "パブリックコメント", site: "パブコメ掲示板",
       top: GH + "pubcome/",
       q: function (n, a) {
         if (!n) return "国や自治体は今、どんな意見を募集中？";
         return (a.muni ? n + "・" + pname(a) : n) + "では今、どんな意見を募集中？";
       },
-      desc: function () { return "募集中の案件を締切が近い順に見て、公式の提出先へ進む"; },
+      see: "募集中の案件を締切が近い順に見る",
       // 市区町村は105市区だけ。対象かどうかはデータを読まないと分からないので、読むまでは都道府県のページ
       link: function (a) {
         var href = GH + "pubcome/pref/?pref=" + encodeURIComponent(pname(a));
@@ -522,10 +512,10 @@
       }
     },
     {
-      id: "shomei", group: "voice", icon: "pen", title: "署名活動", site: "署名掲示板",
+      id: "shomei", group: "voice", icon: "shomei", title: "署名活動", site: "署名掲示板",
       top: GH + "shomei/",
       q: function (n, a) { return n ? pname(a) + "に関係する署名はある？" : "全国で、どんな署名が集まっている？"; },
-      desc: function (n, a) { return n ? pname(a) + "に関係する署名と、全国向けの署名を見る" : "活動の内容・提出先・署名の数を見て、署名ページへ進む"; },
+      see: function (n) { return n ? "地域に関係する署名と、全国向けの署名を見る" : "活動の内容と署名の数を見る"; },
       // 署名は都道府県ごとにだけ分けている。0件の県も「0件です」と表示される
       link: function (a) {
         var href = GH + "shomei/?pref=" + encodeURIComponent(pshort(a)) + "#results";
@@ -552,48 +542,55 @@
     },
     // ---------- 全国共通（地域を引き継がない。地域ごとの数値も出さない） ----------
     {
-      id: "policy", group: "nation", nation: true, icon: "capitol", title: "国の政策・法案", site: "政策ログJP",
+      id: "policy", group: "nation", nation: true, icon: "policy", title: "国の政策・法案", site: "政策ログJP",
       top: "https://policy-log.jp/",
       q: function () { return "国では今、どんな政策や法案が進んでいる？"; },
-      desc: function () { return "政策や法案の検討・審議・成立状況を、省庁やテーマから調べられます。"; },
+      see: "政策・法案の検討・審議・成立の状況を見る",
       credit: "運営：Policy-log.jpさん（ほかの方のサイトです）"
     },
     {
-      id: "kansensho", group: "nation", nation: true, icon: "virus", title: "感染症と水際対策", site: "世界の感染症と日本の水際対策",
+      id: "kansensho", group: "nation", nation: true, icon: "kansensho", title: "感染症と水際対策", site: "世界の感染症と日本の水際対策",
       top: GH + "kansensho/",
       q: function () { return "世界では、どんな感染症が広がっている？"; },
-      desc: function () { return "結核・HIV・梅毒・はしかの国別データや、日本の入国時の検査制度、患者数、治療費の負担を調べられます。"; }
+      see: "国別データ・入国時の検査・治療費の負担を見る",
     }
   ];
 
   // ---------- カードを描く ----------
   var EXT = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg>';
 
+  // カードは「アイコンと分野名 → 1行の問いかけ → 数値 → 要点（見られること・開くページ・時点） → 詳しく調べる」の5段
   function cardHTML(t, a) {
     var n = a ? aname(a) : "";
+    var see = typeof t.see === "function" ? t.see(n, a) : t.see;
     return (
       '<li class="topic" id="topic-' + t.id + '">' +
         '<div class="topic-head">' +
-          '<span class="topic-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + ICONS[t.icon] + "</svg></span>" +
+          (window.brandIcon ? window.brandIcon(t.icon) : "") +
           '<div><h4 class="topic-title">' + esc(t.title) + "</h4>" +
           '<p class="topic-site">' + esc(t.site) + "</p></div>" +
         "</div>" +
-        '<div class="topic-about"><p class="topic-q">' + esc(t.q(n, a)) + '</p><p class="topic-desc">' + esc(t.desc(n, a)) + "</p></div>" +
+        '<p class="topic-q">' + esc(t.q(n, a)) + "</p>" +
         '<div class="topic-value" aria-live="polite"></div>' +
-        '<p class="topic-note"></p>' +
-        '<p class="topic-scope"></p>' +
+        '<ul class="topic-points">' +
+          '<li class="topic-see">' + esc(see) + "</li>" +
+          '<li class="topic-scope"></li>' +
+          '<li class="topic-note"></li>' +
+        "</ul>" +
         '<div class="topic-foot"><a class="btn-topic" href="' + esc(t.top) + '" target="_blank" rel="noopener noreferrer">詳しく調べる' + EXT +
           '<span class="sr-only">（' + esc(t.site) + "が新しいタブで開きます）</span></a></div>" +
       "</li>"
     );
   }
+  // 開くページ：記号と色に、短い1文を添える（「地域を引き継ぎ」などの区分名は、読み上げとマウスを重ねたときに出す）
   function setLink(li, r) {
     var s = SCOPE[r.pending ? "pending" : r.scope];
     var scope = li.querySelector(".topic-scope");
     scope.className = "topic-scope is-" + (r.pending ? "pending" : r.scope);
+    scope.title = s.tag;
     scope.innerHTML =
-      '<span class="scope-tag"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + s.icon + "</svg>" + s.tag + "</span>" +
-      '<span class="scope-text">' + esc(r.pending ? "確認しています…" : r.text) + "</span>";
+      '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + s.icon + "</svg>" +
+      '<span><span class="sr-only">' + esc(s.tag) + "：</span>" + esc(r.pending ? "開くページを確認しています…" : r.text) + "</span>";
     li.querySelector(".btn-topic").href = r.href;
   }
   function setStat(li, st, empty) {
