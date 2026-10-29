@@ -9,7 +9,7 @@
 //   minpaku … 民泊・旅館業マップ（ベッド）          mosque … 日本のモスク情報（ドームと三日月）
 //   kansensho … 世界の感染症と日本の水際対策（心拍の線）
 //   pubcome … パブコメ掲示板（吹き出し）            shomei … 署名掲示板（署名用紙とペン）
-//   mou … 日本と世界のMOU・協定マップ（地球。サイトのファビコンは今は「M」の文字）
+//   mou … 日本と世界のMOU・協定マップ（地球。2026年10月29日夜にサイトのファビコンが「M」から地球に変わったのに合わせた）
 //   people … 図で見る、日本に住む外国人（ファビコンがないため、内容に合わせた形）
 //   日本のモスクを知る もファビコンがないため、日本のモスク情報と同じ mosque を使う
 (function (root) {
@@ -21,8 +21,7 @@
       '<rect x="13" y="7.5" width="6" height="5" rx="2" fill="#BFD7F2"/>' +
       '<path d="M12 17.8h8M12 20.8h6M12 23.8h7" stroke="currentColor" stroke-opacity=".45" stroke-width="1.5" stroke-linecap="round"/>',
     mou:
-      '<circle cx="16" cy="16" r="10" fill="none" stroke="#fff" stroke-width="2.2"/>' +
-      '<path d="M6 16h20M7.8 11h16.4M7.8 21h16.4M16 6c3.4 3 3.4 17 0 20M16 6c-3.4 3-3.4 17 0 20" fill="none" stroke="#fff" stroke-width="1.8"/>',
+      '<g fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><circle cx="16" cy="16" r="11.5"/><ellipse cx="16" cy="16" rx="5.2" ry="11.5"/><path d="M4.5 16h23"/></g>',
     karte:
       '<g fill="#fff"><rect x="5.4" y="17.3" width="5.7" height="8.2" rx=".6"/><rect x="13.2" y="12.2" width="5.7" height="13.3" rx=".6"/><rect x="21" y="6.5" width="5.7" height="19" rx=".6"/></g>',
     zairyu:
