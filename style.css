@@ -299,7 +299,7 @@ html:not(.js) .entry { display: none; }
 }
 .card-extra { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; line-height: 1.55; color: var(--muted); }
 .card-extra:empty { display: none; }
-.card-note, .card-credit, .card-updated, .pair { margin: 0; }
+.card-note, .card-guide, .card-credit, .card-updated, .pair { margin: 0; }
 .card-note { color: var(--navy); font-weight: 700; }
 /* ページの更新日：補足の段のいちばん下に寄せ、同じ行のカードで高さをそろえる（ボタンのすぐ上） */
 .card-updated { margin-top: auto; }

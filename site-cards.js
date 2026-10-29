@@ -29,6 +29,12 @@
             esc(handle) + '<span class="sr-only">（新しいタブで開きます）</span>' +
           "</a>）</p>";
     }
+    // 「まず3分で知る」など、初心者向けの解説への補助リンク（同じ目的の「図で知る」案内がある場合は、どちらか一方だけ）
+    var guide = site.guide
+      ? '<p class="card-guide"><a class="pair-link" href="' + esc(site.guide.url) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(site.guide.label) + (site.guide.site ? "：" + esc(site.guide.site) : "") + EXTERNAL_ICON +
+          '<span class="sr-only">（新しいタブで開きます）</span></a></p>'
+      : "";
     var pair = "";
     var other = site.pair && siteById[site.pair.id];
     if (other) {
@@ -45,6 +51,7 @@
         '<ul class="card-points">' + points + "</ul>" +
         '<div class="card-extra">' +
           note +
+          guide +
           credit +
           pair +
           // ページの更新日は、どのカードでも補足のいちばん下（ボタンのすぐ上）に置く

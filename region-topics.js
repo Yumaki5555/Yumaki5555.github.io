@@ -18,6 +18,14 @@
   "use strict";
 
   var GH = "https://yumaki5555.github.io/";
+  // 初心者向けの解説（「まず3分で知る」「図で知る」の補助リンク）。2026年10月29日に、開いて該当の解説が出ることを確認したものだけ
+  var GUIDE = {
+    zairyu: "https://nihon-kurashi-zairyu-guide.sunlitmole256.chatgpt.site/#region",  // 図で見る、日本に住む外国人「地域を比べる」
+    mosque: "https://mosque-info-explorer.sunlitmole256.chatgpt.site/",               // 日本のモスクを知る（region.html?pref=県名 で県の要約）
+    tabunka: GH + "tabunka-yosan/#/guide",                                             // 3分でわかる 多文化共生予算
+    mou: GH + "mou-map/#/guide",                                                       // 3分でわかるMOU
+    kansensho: GH + "kansensho/#sanpun-tb"                                             // まず3分でわかる（結核編。HIV/エイズ編へも切りかえられる）
+  };
   var TIMEOUT = 15000; // これより長くかかったら「取得失敗」にする（ミリ秒）
 
   var STATE = {
@@ -42,6 +50,7 @@
     });
   }
   function num(n) { return Number(n).toLocaleString("ja-JP"); }
+  function signed(n) { return (n > 0 ? "+" : n < 0 ? "−" : "±") + num(Math.abs(n)); }
   function jdate(s) {
     // "2026-10-28" / "2026/10/28" / "2026-10-28T10:00+09:00" → 2026年10月28日（時刻があれば付ける）
     var m = String(s || "").match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:T(\d{1,2}):(\d{2}))?/);
@@ -158,14 +167,18 @@
           if (r.status === 404) return { missing: true };
           ok(r);
           return r.text().then(function (html) {
-            var re = /<script type="application\/json">([\s\S]*?)<\/script>/g, m;
+            // 国籍の内わけ（合計人数と時点）と、人数の移り変わり（前年との比較に使う）だけを取り出す
+            var re = /<script type="application\/json">([\s\S]*?)<\/script>/g, m, nat = null, trend = null;
             while ((m = re.exec(html))) {
               try {
                 var d = JSON.parse(m[1]);
-                if (d && d.dim === "nat" && typeof d.total === "number") return d;
+                if (d && d.dim === "nat" && typeof d.total === "number" && !nat) nat = d;
+                else if (d && d.per && d.vals && !trend) trend = d;
               } catch (e) { /* ほかのデータは使わない */ }
             }
-            return {};
+            if (!nat) return {};
+            nat.trend = trend;
+            return nat;
           });
         });
       });
@@ -178,11 +191,13 @@
   // see    … そのサイトで見られることを短く（文字列、または n・a を受け取る関数）
   // link(a)  … データを読まずに決められるリンク { href, scope, text }
   // resolve(a) … データを読んで { stat, href?, scope?, text? } を返す（なければ数値は出さない）
-  //   stat … { value: 大きく出す文, sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし） }
+  //   stat … { value: 大きく出す文, extra: 数値の意味が分かる補足を1行（同じ条件で比べられるときだけ。なくてもよい）,
+  //            sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし） }
+  // guide(a) … 「まず3分で知る」「図で知る」の補助リンク { label, href, site }（実際にある解説だけ。なくてもよい）
   var GROUPS = [
     { id: "now", mark: "A", title: "地域の現状を知る" },
     { id: "gov", mark: "B", title: "行政の動きを調べる" },
-    { id: "voice", mark: "C", title: "声を届ける・参加する" },
+    { id: "voice", mark: "C", title: "声を届ける・参加する", lead: "パブコメは国や自治体の案に意見を出すしくみ、署名は活動の趣旨に賛同する意思を示すものです。" },
     // 地域では分けられない、国全体・世界の情報（地域を選んでも中身は変わらない）
     { id: "nation", mark: "D", title: "全国共通の情報も調べる", lead: "国全体・世界の情報です。どの地域を選んでも、同じページが開きます。" }
   ];
@@ -197,7 +212,8 @@
       id: "zairyu", group: "now", icon: "zairyu", title: "在留外国人", site: "数でみる在留外国人",
       top: GH + "zairyu/index.html",
       q: function (n) { return n ? n + "には外国人が何人住んでいる？" : "日本には外国人が何人住んでいる？"; },
-      see: "国籍・在留資格・年ごとの推移を見る",
+      see: "国籍・在留資格（日本に住むための資格）・推移を見る",
+      guide: function () { return { label: "図で知る", site: "図で見る、日本に住む外国人", href: GUIDE.zairyu }; },
       url: function (a) {
         var base = GH + "zairyu/";
         if (!a.muni) return base + "pref-" + ROMA[+a.pref - 1] + ".html";
@@ -216,9 +232,23 @@
           if (typeof d.total !== "number") return {};
           var w = String(d.when || "").match(/(\d{4})-(\d{2})/);
           var top3 = (d.items || []).slice(0, 3).map(function (x) { return x[0]; }).join("・");
+          // 前年の同じ時点（12月末なら前年12月末）との差。サイトの推移データに両方の時点があり、
+          // 今の人数が推移データの値と一致するとき（同じ統計の同じ数え方）だけ出す
+          var extra = "";
+          var tr = d.trend;
+          if (w && tr) {
+            var i = tr.per.indexOf(d.when), j = tr.per.indexOf((+w[1] - 1) + "-" + w[2]);
+            if (i >= 0 && j >= 0 && tr.vals[i] === d.total && tr.vals[j] > 0) {
+              var diff = d.total - tr.vals[j];
+              var pct = Math.round(diff / tr.vals[j] * 1000) / 10;
+              extra = "1年前（" + (+w[1] - 1) + "年" + (+w[2]) + "月末）から " + signed(diff) + "人（" +
+                (pct > 0 ? "+" : pct < 0 ? "−" : "±") + Math.abs(pct).toFixed(1) + "%）";
+            }
+          }
           return {
             stat: {
               value: num(d.total) + "<small>人</small>",
+              extra: extra,
               sub: top3 ? "多い国籍：" + top3 : "",
               note: (w ? w[1] + "年" + (+w[2]) + "月末時点。" : "") + "出典：出入国在留管理庁「在留外国人統計」"
             }
@@ -231,6 +261,9 @@
       top: GH + "mosque-map/",
       q: function (n) { return n ? n + "にモスクはある？" : "日本のどこにモスクがある？"; },
       see: "施設の数・建設計画・墓地の情報を見る",
+      guide: function (a) {
+        return { label: "図で知る", site: "日本のモスクを知る", href: a ? GUIDE.mosque + "region.html?pref=" + encodeURIComponent(pname(a)) : GUIDE.mosque };
+      },
       link: function (a) {
         if (a.muni) {
           return {
@@ -286,6 +319,22 @@
           function missingIn(src) {
             return src.some(function (i) { var s = D.sources[i]; return s && s.count === 0 && s.memo; });
           }
+          // 前回比：対象のすべての資料に「同じ資料の前の版」があり、取得できていない資料がないときだけ合計する
+          // （新しく加えた県の資料は前の版がないので出さない。県全体の一覧から分けた市町村も、市町村ごとの差が分からないので出さない）
+          function compare(list, ownOnly) {
+            if (!list.length) return "";
+            var total = 0, prev = {}, now = {};
+            for (var k = 0; k < list.length; k++) {
+              var s = list[k];
+              if (!s || typeof s.diff !== "number" || !s.prev || (s.count === 0 && s.memo) || (ownOnly && s.muni !== ownOnly)) return "";
+              total += s.diff; prev[s.prev] = 1; now[s.date] = 1;
+            }
+            var p = Object.keys(prev), n = Object.keys(now);
+            var span = p.length === 1 && n.length === 1
+              ? "（" + mdate(p[0].replace(/\//g, "-")) + "→" + mdate(n[0].replace(/\//g, "-")) + "の資料）"
+              : "（資料ごとに前の版と比べた差）";
+            return "前回の資料から " + (total ? signed(total) + "件" : "増減なし") + span;
+          }
           var prefURL = base + "?pref=" + encodeURIComponent(pname(a)) + "#map-sec";
           if (a.muni) {
             var city = D.cities.find(function (c) {
@@ -305,6 +354,7 @@
               scope: "exact", text: a.muni.name + "を選んだ状態で開きます",
               stat: {
                 value: num(total) + "<small>件</small>",
+                extra: compare(city.src.map(function (i) { return D.sources[i]; }), city.name),
                 sub: line(city.n),
                 note: "自治体が公表した一覧の件数" + (span ? "（" + span + "時点）" : "") + "。" +
                   (missingIn(city.src) ? "取得できていない一覧があります（その分は含みません）。" : "")
@@ -322,6 +372,7 @@
             href: prefURL, scope: "exact", text: pname(a) + "を選んだ状態で開きます",
             stat: {
               value: num(sum[0] + sum[1] + sum[2] + sum[3]) + "<small>件</small>",
+              extra: compare(D.sources.filter(function (s) { return s.pref === pi; })),
               sub: line(sum),
               note: "県内の掲載分の合計（資料の日付は自治体ごとに異なります）。" +
                 (missingIn(srcs) ? "取得できていない一覧の分は含みません。" : "") + when
@@ -334,7 +385,8 @@
       id: "tabunka", group: "gov", icon: "tabunka", title: "多文化共生予算", site: "全国 多文化共生予算マップ",
       top: GH + "tabunka-yosan/",
       q: function (n) { return n ? n + "は多文化共生にいくら使っている？" : "自治体は多文化共生にいくら使っている？"; },
-      see: "予算額・事業の内容・使い道を比べる",
+      see: "日本語学習や相談、学校支援など、外国人に関係する事業の予算を見る",
+      guide: function () { return { label: "まず3分で知る", site: "3分でわかる 多文化共生予算", href: GUIDE.tabunka }; },
       code: function (a) { return a.muni ? a.muni.code : prefCode6(a.pref); },
       link: function (a) { return { href: GH + "tabunka-yosan/#/m/" + this.code(a), scope: "exact", text: aname(a) + "のページが開きます" }; },
       resolve: function (a) {
@@ -352,11 +404,22 @@
             });
           });
           if (!pick) return { stat: { state: "unconfirmed", value: "金額を確認中", note: "事業は見つかっていますが、合計額はまだ確認できていません" + when + "。" } };
+          // いちばん大きい使い道：使い道ごとの金額の合計が全体と一致し、「その他」以外がいちばん大きいときだけ
+          var extra = "";
+          var f = pick.x.f || {};
+          var keys = Object.keys(f);
+          var fsum = keys.reduce(function (t, k) { return t + f[k]; }, 0);
+          if (keys.length && pick.x.a > 0 && fsum === pick.x.a) {
+            var top = keys.sort(function (x, y) { return f[y] - f[x]; })[0];
+            if (top !== "その他" && f[top] > 0) extra = "いちばん大きい使い道：" + top + "（" + Math.round(f[top] / pick.x.a * 100) + "%）";
+          }
           return {
             stat: {
               value: yen(pick.x.a),
-              note: pick.fy + "年度" + pick.st + "のうち、多文化共生に直接関係する事業の合計。" +
-                (pick.x.st === "一部確認" ? "一部の事業だけ確認済み" : "確認済み") + when + "。"
+              extra: extra,
+              // 予算（当初・補正後）と決算を取りちがえないよう、どれの合計かを必ず書く。関連予算をすべて把握したようには書かない
+              note: pick.fy + "年度" + pick.st + "のうち、公式資料で確認できた関連事業の合計" +
+                (pick.x.st === "一部確認" ? "（一部の事業のみ確認）" : "") + "。" + jdate(S.generated) + "集計。"
             }
           };
         });
@@ -383,6 +446,7 @@
         return (a.muni ? n + "や" + pname(a) : n) + "は、海外とどんな協定を結んでいる？";
       },
       see: "相手国・分野と、有効・終了・未確認の区分を見る",
+      guide: function () { return { label: "まず3分で知る", site: "3分でわかるMOU", href: GUIDE.mou }; },
       // 市区町村のページは、サイトが調べた政令指定都市20市だけ。データを読むまでは都道府県のページ
       link: function (a) {
         var href = GH + "mou-map/#/pref/" + a.pref;
@@ -438,7 +502,7 @@
         if (!n) return "国や自治体は今、どんな意見を募集中？";
         return (a.muni ? n + "・" + pname(a) : n) + "では今、どんな意見を募集中？";
       },
-      see: "募集中の案件を締切が近い順に見る",
+      see: "国や自治体の案に意見を出せる案件を、締切が近い順に見る",
       // 市区町村は105市区だけ。対象かどうかはデータを読まないと分からないので、読むまでは都道府県のページ
       link: function (a) {
         var href = GH + "pubcome/pref/?pref=" + encodeURIComponent(pname(a));
@@ -450,8 +514,16 @@
         var t = today();
         // 募集中＝締切日が今日以降のもの（締切を過ぎた案件は数えない）
         function open(items, test) {
-          var list = items.filter(function (i) { return i.dl && i.dl >= t && test(i); }).map(function (i) { return i.dl; }).sort();
-          return { n: list.length, next: list[0] || "" };
+          var list = items.filter(function (i) { return i.dl && i.dl >= t && test(i); })
+            .sort(function (x, y) { return x.dl < y.dl ? -1 : x.dl > y.dl ? 1 : 0; });
+          return { n: list.length, next: list[0] || null };
+        }
+        // いちばん近い締切と、その案件の短い名前（パブコメ掲示板が付けた分かりやすい名前）
+        function nextLine(o) {
+          if (!o.next) return "";
+          var name = String(o.next.t || "");
+          if (name.length > 22) name = name.slice(0, 21) + "…";
+          return "いちばん近い締切：" + mdate(o.next.dl) + (name ? "「" + name + "」" : "");
         }
         var national = load.pubCounts().then(function (C) {
           var n = 0;
@@ -492,8 +564,9 @@
             res.stat = {
               state: cc.n ? undefined : "zero",
               value: "募集中 " + num(cc.n) + "<small>件</small>",
+              extra: nextLine(cc),
               sub: "ほかに " + [prefTxt, natTxt].filter(Boolean).join("・"),
-              note: (cc.next ? "いちばん近い締切：" + mdate(cc.next) + "。" : "") + "締切を過ぎた案件は数えません。" + when
+              note: "締切を過ぎた案件は数えません。" + when
             };
             return res;
           }
@@ -504,8 +577,9 @@
             stat: {
               state: pc.n ? undefined : "zero",
               value: "募集中 " + num(pc.n) + "<small>件</small>",
+              extra: nextLine(pc),
               sub: natTxt ? "ほかに " + natTxt : "",
-              note: (pc.next ? "いちばん近い締切：" + mdate(pc.next) + "。" : "") + "締切を過ぎた案件は数えません。" + when
+              note: "締切を過ぎた案件は数えません。" + when
             }
           };
         });
@@ -515,7 +589,7 @@
       id: "shomei", group: "voice", icon: "shomei", title: "署名活動", site: "署名掲示板",
       top: GH + "shomei/",
       q: function (n, a) { return n ? pname(a) + "に関係する署名はある？" : "全国で、どんな署名が集まっている？"; },
-      see: function (n) { return n ? "地域に関係する署名と、全国向けの署名を見る" : "活動の内容と署名の数を見る"; },
+      see: function (n) { return "活動の趣旨を読み、賛同する署名を探す" + (n ? "（地域に関係するもの・全国向け）" : ""); },
       // 署名は都道府県ごとにだけ分けている。0件の県も「0件です」と表示される
       link: function (a) {
         var href = GH + "shomei/?pref=" + encodeURIComponent(pshort(a)) + "#results";
@@ -553,6 +627,7 @@
       top: GH + "kansensho/",
       q: function () { return "世界では、どんな感染症が広がっている？"; },
       see: "国別データ・入国時の検査・治療費の負担を見る",
+      guide: function () { return { label: "まず3分で知る", site: "まず3分でわかる（結核編・HIV/エイズ編）", href: GUIDE.kansensho }; },
     }
   ];
 
@@ -577,10 +652,17 @@
           '<li class="topic-scope"></li>' +
           '<li class="topic-note"></li>' +
         "</ul>" +
-        '<div class="topic-foot"><a class="btn-topic" href="' + esc(t.top) + '" target="_blank" rel="noopener noreferrer">詳しく調べる' + EXT +
+        '<div class="topic-foot">' + guideHTML(t, a) +
+          '<a class="btn-topic" href="' + esc(t.top) + '" target="_blank" rel="noopener noreferrer">詳しく調べる' + EXT +
           '<span class="sr-only">（' + esc(t.site) + "が新しいタブで開きます）</span></a></div>" +
       "</li>"
     );
+  }
+  function guideHTML(t, a) {
+    var g = t.guide && t.guide(a);
+    if (!g) return "";
+    return '<a class="topic-guide" href="' + esc(g.href) + '" target="_blank" rel="noopener noreferrer">' +
+      esc(g.label) + "：" + esc(g.site) + EXT + '<span class="sr-only">（新しいタブで開きます）</span></a>';
   }
   // 開くページ：記号と色に、短い1文を添える（「地域を引き継ぎ」などの区分名は、読み上げとマウスを重ねたときに出す）
   function setLink(li, r) {
@@ -603,6 +685,7 @@
       return;
     }
     v.innerHTML = (st.state ? '<span class="state-tag">' + STATE[st.state] + "</span>" : "") + '<span class="topic-value-main">' + st.value + "</span>" +
+      (st.extra ? '<span class="topic-value-extra">' + esc(st.extra) + "</span>" : "") +
       (st.sub ? '<span class="topic-value-sub">' + esc(st.sub) + "</span>" : "");
     note.textContent = st.note || "";
   }

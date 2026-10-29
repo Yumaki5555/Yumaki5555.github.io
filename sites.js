@@ -10,6 +10,7 @@
 // points   … そのサイトで具体的にできること（2〜3個、短く）。変わる件数は書かない
 // note     … 補足のひとこと（なくてもよい）
 // pair     … 「詳しく調べる版」と「図で学ぶ版」をつなぐ案内（相手の id と、案内の言葉）
+// guide    … 初心者向けの解説への補助リンク { label, site, url }（実際にある解説だけ。URL は開いて確かめたものだけ）
 // checkUpdate … true にすると、そのサイトのページ更新日を読み取って表示します
 //               （読み取れるのは yumaki5555.github.io のサイトだけです）
 // operator … ほかの方が運営しているサイトの、運営者の名前と X（旧Twitter）のアドレス
@@ -35,7 +36,8 @@ window.SITES = [
     url: "https://yumaki5555.github.io/mou-map/",
     icon: "mou",
     summary: "海外との覚書・協定を地図で調べる",
-    points: ["日本地図・相手国・分野から検索", "有効・終了・未確認の区分と地域への影響", "「まず3分でわかる」で仕組みを解説"],
+    points: ["日本地図・相手国・分野から検索", "有効・終了・未確認の区分と地域への影響", "協定ごとに内容と出典を確認"],
+    guide: { label: "まず3分で知る", site: "3分でわかるMOU", url: "https://yumaki5555.github.io/mou-map/#/guide" },
     shot: "img/shots/mou-map.webp",
     alt: "MOU・協定マップの画面。キーワードで探す検索欄と、登録した協定の数を都道府県ごとに色分けした日本地図",
     checkUpdate: true
@@ -58,8 +60,9 @@ window.SITES = [
     name: "全国 多文化共生予算マップ",
     url: "https://yumaki5555.github.io/tabunka-yosan/",
     icon: "tabunka",
-    summary: "多文化共生の予算と使い道を調べる",
-    points: ["日本語教室・相談窓口などの予算と決算", "財源の内訳、ほかの自治体・年度との比較", "「3分でわかる」で仕組みを解説"],
+    summary: "外国人に関係する事業の予算を調べる",
+    points: ["日本語学習・相談・学校支援などの予算と決算", "使い道と財源の内訳、ほかの自治体・年度との比較", "地図・自治体名から探す"],
+    guide: { label: "まず3分で知る", site: "3分でわかる 多文化共生予算", url: "https://yumaki5555.github.io/tabunka-yosan/#/guide" },
     note: "調べた自治体から順に公開中",
     shot: "img/shots/tabunka-yosan.webp",
     alt: "全国 多文化共生予算マップの浜松市のページ。2026年度当初予算の多文化共生の直接関連事業の合計3億4,976.7万円と、財源の内訳・外国人住民数が並んでいる",
@@ -72,11 +75,11 @@ window.SITES = [
     url: "https://yumaki5555.github.io/zairyu/index.html",
     icon: "zairyu",
     summary: "外国人住民の数を地域・国籍で調べる",
-    points: ["都道府県・市区町村・国籍・在留資格から検索", "1959年からの推移を地図で再生", "半期ごとの速報も見られる"],
+    points: ["都道府県・市区町村・国籍から人数を検索", "在留資格（日本に住むための資格）ごとの内訳", "1959年からの推移を地図で再生・半期ごとの速報"],
     shot: "img/shots/zairyu.webp",
     alt: "数でみる在留外国人の画面。都道府県ごとの在留外国人の数を、色の濃さで表した日本地図",
     checkUpdate: true,
-    pair: { id: "zairyu-guide", label: "まずは図で" }
+    pair: { id: "zairyu-guide", label: "図で知る" }
   },
   {
     id: "minpaku-map",
@@ -101,7 +104,7 @@ window.SITES = [
     shot: "img/shots/mosque-map.webp",
     alt: "日本のモスク情報の地図画面。日本地図にモスク・礼拝所の位置がピンで示され、右側に施設の一覧が並んでいる",
     checkUpdate: true,
-    pair: { id: "mosque-guide", label: "まずは図で" }
+    pair: { id: "mosque-guide", label: "図で知る" }
   },
   {
     id: "kansensho",
@@ -111,7 +114,7 @@ window.SITES = [
     icon: "kansensho",
     summary: "感染症の国別状況と水際対策を調べる",
     points: ["HIV・梅毒・はしか・結核を国別に比較", "国・在留資格から入国時の検査を確認", "日本の患者数の推移と治療費の負担"],
-    note: "「まず3分でわかる」結核編・HIV/エイズ編つき",
+    guide: { label: "まず3分で知る", site: "結核編・HIV/エイズ編", url: "https://yumaki5555.github.io/kansensho/#sanpun-tb" },
     shot: "img/shots/kansensho.webp",
     alt: "世界の感染症と日本の水際対策の国別比較画面。国ごとの結核の罹患率を横棒グラフで比べている",
     checkUpdate: true
@@ -135,7 +138,7 @@ window.SITES = [
     url: "https://nihon-kurashi-zairyu-guide.sunlitmole256.chatgpt.site/",
     icon: "people",
     summary: "外国人のくらしを図でやさしく学ぶ",
-    points: ["在留資格を円グラフ・100人の図で", "年ごとの変化と地域の比較", "クイズで確かめる"],
+    points: ["在留資格（日本に住むための資格）を円グラフで", "100人に置きかえた図で割合を見る", "年ごとの変化・地域の比較・クイズ"],
     shot: "img/shots/zairyu-guide.webp",
     alt: "図で見る、日本に住む外国人の画面。外国人全体のうち、仕事・技能実習の資格の人の割合を示す円グラフ",
     pair: { id: "zairyu", label: "詳しく調べる" }
@@ -146,8 +149,8 @@ window.SITES = [
     name: "パブコメ掲示板",
     url: "https://yumaki5555.github.io/pubcome/",
     icon: "pubcome",
-    summary: "いま募集中の意見募集（パブコメ）を探す",
-    points: ["国・都道府県・市区町村の案件", "キーワード・担当省庁で検索", "締切が近い順に並べ、公式の提出先へ"],
+    summary: "国や自治体の案に意見を出す（パブコメ）",
+    points: ["国・都道府県・市区町村の募集中の案件を探す", "キーワード・担当省庁で検索", "締切が近い順に並べ、公式の提出先へ"],
     shot: "img/shots/pubcome.webp",
     alt: "パブコメ掲示板の画面。国・都道府県・市区町村の切りかえと、キーワード・担当省庁・テーマで案件を探す検索欄",
     checkUpdate: true
@@ -158,7 +161,7 @@ window.SITES = [
     name: "署名掲示板",
     url: "https://yumaki5555.github.io/shomei/",
     icon: "shomei",
-    summary: "全国の署名活動を探す",
+    summary: "活動の趣旨を読み、賛同する署名を探す",
     points: ["change.org と Voice の署名を掲載", "キーワード・都道府県で検索", "署名が多い順・伸びている順・終了日が近い順"],
     shot: "img/shots/shomei.webp",
     alt: "署名掲示板の画面。キーワード・テーマ・地域・並び順で署名を探す検索欄",

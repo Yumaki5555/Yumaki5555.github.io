@@ -261,3 +261,14 @@
 @media (max-width: 639px) {
   .area-current-name .crumb-pref { font-size: .82em; }
 }
+
+/* 数値の意味が分かる補足（前年比・前回比・使い道・締切）。同じ条件で比べられるときだけ1行出す */
+.topic-value-extra { flex-basis: 100%; color: var(--blue-dark); font-size: .92rem; font-weight: 700; line-height: 1.5; }
+/* 「まず3分で知る」「図で知る」：初心者向け解説への補助リンク（主ボタン「詳しく調べる」のすぐ上） */
+.topic-foot { display: flex; flex-direction: column; gap: 8px; }
+.topic-guide {
+  display: inline-flex; align-items: center; gap: 4px; align-self: flex-start;
+  color: var(--blue); font-size: .92rem; font-weight: 700; line-height: 1.5; text-underline-offset: 3px;
+}
+.topic-guide:hover { color: var(--blue-dark); }
+.topic-guide .ico { width: 15px; height: 15px; }
