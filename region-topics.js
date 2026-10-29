@@ -1,5 +1,6 @@
-// 「地域から調べる」の8つのカード
+// 「地域から調べる」のカード（地域の8分野＋全国共通の2サイト）
 // それぞれのカードは、選んだ地域を専門サイトへ引き継ぐリンクと、取れるときだけ代表的な数値を出します。
+// 全国共通の2サイト（政策ログJP・世界の感染症と日本の水際対策）は地域を引き継がず、数値も出しません（「全国共通」と表示）。
 //
 // ■ 地域の引き継ぎ（各サイトに実際にあるURLの形だけを使う。2026年10月28日に各サイトで確認）
 //   exact … 選んだ地域（市区町村 or 都道府県）のページが開く   → 「地域を引き継ぎ」
@@ -31,6 +32,7 @@
     wider: { tag: "都道府県まで", icon: '<path d="M12 5v9M12 18.5v.5"/>' },
     top: { tag: "引き継ぎなし", icon: '<path d="M6 12h12"/>' },
     all: { tag: "全国", icon: '<circle cx="12" cy="12" r="6.5"/>' },
+    nation: { tag: "全国共通", icon: '<circle cx="12" cy="12" r="7.5"/><path d="M4.5 12h15M12 4.5c2.2 2.2 2.2 12.8 0 15M12 4.5c-2.2 2.2-2.2 12.8 0 15"/>' },
     pending: { tag: "確認中", icon: '<circle cx="12" cy="12" r="1.2"/><circle cx="7" cy="12" r="1.2"/><circle cx="17" cy="12" r="1.2"/>' }
   };
 
@@ -178,7 +180,9 @@
   var GROUPS = [
     { id: "now", mark: "A", title: "地域の現状を知る" },
     { id: "gov", mark: "B", title: "行政の動きを調べる" },
-    { id: "voice", mark: "C", title: "声を届ける・参加する" }
+    { id: "voice", mark: "C", title: "声を届ける・参加する" },
+    // 地域では分けられない、国全体・世界の情報（地域を選んでも中身は変わらない）
+    { id: "nation", mark: "D", title: "全国共通の情報も調べる", lead: "国全体・世界の情報です。どの地域を選んでも、同じページが開きます。" }
   ];
   var ICONS = {
     people: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.4 2.8-5.3 5.5-5.3s4.9 1.9 5.5 5.3"/><circle cx="17" cy="9" r="2.5"/><path d="M15.8 14.3c2.4.2 4 1.9 4.7 5.2"/>',
@@ -188,7 +192,9 @@
     chart: '<path d="M4 20h16"/><rect x="5.5" y="11" width="3" height="7" rx=".6"/><rect x="10.5" y="7" width="3" height="11" rx=".6"/><rect x="15.5" y="13" width="3" height="5" rx=".6"/>',
     handshake: '<path d="M2.5 11.5 6 8l3 1 3-2 3 .5 3.5 3.5"/><path d="M6 8v6l5 4.5c.8.7 2 .7 2.7-.1l4.3-4.4"/><path d="M12 7l-3.2 3.3c-.6.6-.6 1.5 0 2.1.6.6 1.5.6 2.1 0L13 10.5"/>',
     comment: '<path d="M4.5 5.5h15v10h-8l-4.5 3.8v-3.8H4.5z"/><path d="M8 9.5h8M8 12.5h5"/>',
-    pen: '<path d="M4.5 19.5l1-4.2L15.8 5a1.8 1.8 0 0 1 2.6 0l.6.6a1.8 1.8 0 0 1 0 2.6L8.7 18.5z"/><path d="M13.8 7l3.2 3.2M4.5 19.5h15"/>'
+    pen: '<path d="M4.5 19.5l1-4.2L15.8 5a1.8 1.8 0 0 1 2.6 0l.6.6a1.8 1.8 0 0 1 0 2.6L8.7 18.5z"/><path d="M13.8 7l3.2 3.2M4.5 19.5h15"/>',
+    capitol: '<path d="M3.5 9.5 12 4.5l8.5 5z"/><path d="M6.5 10.5v6.5M10 10.5v6.5M14 10.5v6.5M17.5 10.5v6.5"/><path d="M4.5 19.5h15"/>',
+    virus: '<circle cx="12" cy="12" r="4.8"/><path d="M12 3.5v3.7M12 16.8v3.7M3.5 12h3.7M16.8 12h3.7M6 6l2.6 2.6M15.4 15.4 18 18M18 6l-2.6 2.6M8.6 15.4 6 18"/>'
   };
 
   var P = {}; // 都道府県コード → { name }（region.js から受け取る）
@@ -543,6 +549,20 @@
           };
         });
       }
+    },
+    // ---------- 全国共通（地域を引き継がない。地域ごとの数値も出さない） ----------
+    {
+      id: "policy", group: "nation", nation: true, icon: "capitol", title: "国の政策・法案", site: "政策ログJP",
+      top: "https://policy-log.jp/",
+      q: function () { return "国では今、どんな政策や法案が進んでいる？"; },
+      desc: function () { return "政策や法案の検討・審議・成立状況を、省庁やテーマから調べられます。"; },
+      credit: "運営：Policy-log.jpさん（ほかの方のサイトです）"
+    },
+    {
+      id: "kansensho", group: "nation", nation: true, icon: "virus", title: "感染症と水際対策", site: "世界の感染症と日本の水際対策",
+      top: GH + "kansensho/",
+      q: function () { return "世界では、どんな感染症が広がっている？"; },
+      desc: function () { return "結核・HIV・梅毒・はしかの国別データや、日本の入国時の検査制度、患者数、治療費の負担を調べられます。"; }
     }
   ];
 
@@ -597,14 +617,22 @@
     render: function (c, a) {
       var my = ++token;
       c.box.innerHTML = GROUPS.map(function (g) {
-        return '<section class="topic-group" aria-labelledby="tg-' + g.id + '">' +
+        return '<section class="topic-group topic-group-' + g.id + '" aria-labelledby="tg-' + g.id + '">' +
           '<h3 class="topic-group-title" id="tg-' + g.id + '"><span class="tg-mark" aria-hidden="true">' + g.mark + "</span>" + esc(g.title) + "</h3>" +
+          (g.lead ? '<p class="topic-group-lead">' + esc(g.lead) + "</p>" : "") +
           '<ul class="topic-cards">' +
           TOPICS.filter(function (t) { return t.group === g.id; }).map(function (t) { return cardHTML(t, a); }).join("") +
           "</ul></section>";
       }).join("");
       TOPICS.forEach(function (t) {
         var li = document.getElementById("topic-" + t.id);
+        if (t.nation) {
+          // 全国共通：地域を選んでも同じページ。地域ごとの数値は作らない
+          setLink(li, { href: t.top, scope: "nation", text: "サイトのトップページが開きます（地域は引き継ぎません）" });
+          setStat(li, null, "地域ごとの数値はありません（国全体・世界の情報です）");
+          li.querySelector(".topic-note").textContent = t.credit || "";
+          return;
+        }
         if (!a) {
           // 地域を選ぶまでは、データを読まずに各サイトのトップを案内する（ページを軽くするため）
           setLink(li, { href: t.top, scope: "all", text: "全国のページが開きます" });

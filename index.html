@@ -29,14 +29,14 @@ document.documentElement.classList.add("js");
 setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.classList.remove("js"); }, 4000);
 </script>
 <!-- ?v= の日付は、css・js を直したら書きかえる（古いファイルが残らないように） -->
-<link rel="stylesheet" href="style.css?v=20261029b">
-<link rel="stylesheet" href="area.css?v=20261029b">
+<link rel="stylesheet" href="style.css?v=20261029c">
+<link rel="stylesheet" href="area.css?v=20261029c">
 <script src="sites.js?v=20261028g" defer></script>
 <script src="site-cards.js?v=20261028g" defer></script>
-<script src="main.js?v=20261029b" defer></script>
+<script src="main.js?v=20261029c" defer></script>
 <script src="data/japan-map.js?v=20261028g" defer></script>
-<script src="region-topics.js?v=20261029a" defer></script>
-<script src="region.js?v=20261029b" defer></script>
+<script src="region-topics.js?v=20261029c" defer></script>
+<script src="region.js?v=20261029c" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
@@ -99,7 +99,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
             <span class="section-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg></span>
             <div>
               <h2 id="h-area" tabindex="-1">地域から調べる</h2>
-              <p>地図で都道府県を押すか、名前で探してください。選んだ地域の情報を、8つの専門サイトで調べられます。</p>
+              <p>地図で都道府県を押すか、名前で探してください。選んだ地域の情報を8つの専門サイトで、国全体の政策と世界の感染症も2つのサイトで調べられます。</p>
             </div>
           </div>
 
@@ -174,7 +174,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
         </div>
         <p class="area-share-msg" role="status"></p>
         <div id="area-cards">
-          <p class="area-fallback">地図と地域ごとの情報を表示できませんでした（JavaScript が読み込めないか、無効になっています）。各サイトは、下の「テーマから探す」から開けます。</p>
+          <p class="area-fallback">地図と地域ごとの情報を表示できませんでした（JavaScript が読み込めないか、無効になっています）。各サイトは「テーマから探す」の一覧から開けます。</p>
         </div>
       </div>
     </div>
@@ -323,6 +323,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
             <dt><span class="scope-key is-wider">！ 都道府県まで</span></dt><dd>専門サイトに市区町村のページがないため、その都道府県のページが開きます。</dd>
             <dt><span class="scope-key is-top">－ 引き継ぎなし</span></dt><dd>地域は引き継がれず、専門サイトのトップページが開きます。</dd>
             <dt><span class="scope-key is-all">○ 全国</span></dt><dd>地域を選ぶ前は、各サイトの全国のページが開きます。</dd>
+            <dt><span class="scope-key is-nation">全国共通</span></dt><dd>国全体・世界の情報のサイト（国の政策・法案、感染症と水際対策）です。地域は引き継がず、どの地域を選んでもサイトのトップページが開きます。地域ごとの数値は出しません。</dd>
           </dl>
         </details>
 
@@ -366,7 +367,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
     </nav>
   </div>
   <div class="wrap">
-    <p class="footer-bottom">このページの更新：2026年10月28日</p>
+    <p class="footer-bottom">このページの更新：2026年10月29日</p>
   </div>
 </footer>
 

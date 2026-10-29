@@ -1,9 +1,10 @@
 // 日本を知る。 「地域から調べる」の動き
 // ・地域を選ぶ前は、日本地図・名前で探す・一覧から選ぶ を出す（選ぶ画面）
 // ・地域を選んだら選ぶ画面を閉じ、選んだ地域の名前と8つのカードをすぐ見せる（情報の画面）。「地域を変える」で選ぶ画面に戻る
-// ・選んだ地域を URL（?area=コード）に入れる。共有・戻る・進むで同じ地域が開く
+// ・選んだ地域は URL（?area=コード）に入る。共有・戻る・進むで同じ地域が開く
+//   URL の読み書きは main.js の window.PortalState がまとめて行い、ここでは地域が変わったことを受け取って画面に出すだけ
 // ・市区町村の一覧 data/municipalities.json は、必要になったときに1回だけ読む
-// ・入口のタブで「地域から調べる」が開くまでは、地図なども作らない（main.js が "area:open" で知らせる）
+// ・入口のタブで「地域から調べる」が開くまでは、地図なども作らない
 (function () {
   "use strict";
 
@@ -264,12 +265,8 @@
     fillMuniSelect();
     renderCurrent();
     if (changed || !cardsBox.querySelector(".topic")) renderCards();
-    if (changed && opts.push !== false) {
-      var url = new URL(location.href);
-      if (area) url.searchParams.set("area", areaCode(area)); else url.searchParams.delete("area");
-      url.hash = "";
-      history.pushState({ area: areaCode(area) }, "", url.pathname + url.search);
-    }
+    // URL の書きかえは main.js の PortalState に頼む（表示モードはそのまま、地域だけ変わる）
+    if (changed && opts.push !== false) State.set({ area: areaCode(area) }, "push");
     document.title = (area ? fullName(area) + "の情報｜" : "") + BASE_TITLE;
   }
   // 人が地域を選んだとき：選ぶ画面を閉じて、カードを見せる
@@ -426,41 +423,37 @@
     window.RegionCards.render(cardCtx, area);
   }
 
-  // ---------- 戻る・進む ----------
-  function onPopState() {
-    var code = new URL(location.href).searchParams.get("area");
-    if ((code || "") === areaCode(area)) return; // 地域が変わらない（タブだけの切りかえなど）ときは何もしない
+  // ---------- URL の地域に合わせる（開いたとき・戻る・進む） ----------
+  // 地域は main.js の PortalState が URL から読んだものを使う（このファイルでは URL を読まない）
+  function follow(code) {
+    if (code === areaCode(area) && cardsBox.querySelector(".topic")) return; // 地域が変わらない（タブの切りかえなど）ときは何もしない
+    // 地域つきの URL のときは、選ぶ画面を閉じて、その地域の情報をすぐ見せる
+    setMode(code ? "view" : "pick");
     areaFromCode(code).then(function (a) {
-      var wasPick = root.getAttribute("data-mode") === "pick";
+      if (State.get().area !== code) return; // 読みこむ間に、別の地域が選ばれた
       setArea(a, { push: false });
       setMode(a ? "view" : "pick");
-      // 選ぶ画面が開いたり閉じたりして表示がずれるときだけ、地域の見出し（または地図）の位置へ移動する
-      if (a && wasPick) showCards();
-      else if (!a) jumpTo(picker);
+      // 市区町村の一覧にないコードは、都道府県のコードに直して URL に残す（一覧を読めなかったときは直さない）
+      if (a && areaCode(a) !== code && (muniData || code.length === 2)) State.set({ area: areaCode(a), hash: State.get().hash }, "replace");
     });
   }
 
   // ---------- はじめ（地域の画面が初めて開いたとき） ----------
+  // 地図などは「地域から調べる」が開くまで作らない。開いたあとは、地域が変わるたびに合わせる
+  var State = window.PortalState;
+  if (!State) return; // main.js が動かないときは、地図を出さない（「テーマから探す」の一覧は表示される）
   var started = false;
   function start() {
     if (started) return;
     started = true;
     drawMap();
     fillPrefSelect();
-    window.addEventListener("popstate", onPopState);
-    var first = new URL(location.href).searchParams.get("area");
-    if (first) {
-      // 地域つきの URL で開いたとき（共有されたリンクなど）は、選ぶ画面を閉じて、その地域の情報をすぐ見せる
-      setMode("view");
-      areaFromCode(first).then(function (a) {
-        setArea(a, { push: false });
-        setMode(a ? "view" : "pick");
-      });
-    } else {
-      setArea(null, { push: false });
-      setMode("pick");
-    }
+    root.setAttribute("data-ready", ""); // これがつくまでは、地図・地域の見出しを出さない（area.css）
   }
-  if (visible()) start();
-  else document.addEventListener("area:open", start);
+  function onState(s) {
+    if (s.view === "area") start();
+    if (started) follow(s.area);
+  }
+  State.on(onState);
+  onState(State.get());
 })();

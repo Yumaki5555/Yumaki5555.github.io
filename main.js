@@ -1,5 +1,6 @@
 // 日本を知る。 ページの動き
-// ・入口の2つのタブ（地域から調べる／テーマから探す）。選んだ方だけを表示し、URL（#area・#themes など）・戻る／進むと合わせる
+// ・ページの状態（表示モード・選んでいる地域・ページ内の移動先）と URL を、1か所でまとめて扱う（window.PortalState）
+// ・入口の2つのタブ（地域から調べる／テーマから探す）。選んだ方だけを表示し、URL・戻る／進むと合わせる
 // ・sites.js の一覧からカードを作り（作り方は site-cards.js）、分類ごとの件数と全体のサイト数を表示する
 // ・スマホのメニュー開閉、上へ戻るボタン
 // ・GitHub Pages のサイトだけ、ページ更新日を読み取って表示する
@@ -50,24 +51,90 @@
     });
   }
 
+  // ---------- ページの状態（URL と画面の表示を、ここ1か所でまとめて扱う） ----------
+  // 状態は3つに分けて持つ：
+  //   view … 表示モード（null＝入口の2つのボタンだけ／"area"＝地域から調べる／"themes"＝テーマから探す）
+  //   area … 選んでいる地域のコード（""＝全国、2けた＝都道府県、6けた＝市区町村）
+  //   hash … ページ内の移動先（#top・#area・#themes・#research・#learn・#participate・#about・#policy）
+  // URL から表示モードを決める順番：
+  //   1. 表示モードを表すハッシュ（#area＝地域、#themes・#research・#learn・#participate＝テーマ）
+  //   2. ?view=area / ?view=themes
+  //   3. 正しい ?area= があれば地域
+  //   4. どれもなければ、入口の2つのボタンだけ
+  //   #top・#about・#policy は移動先だけを表し、表示モードは変えない
+  // URL を書きかえるのも、画面に知らせるのもここだけ（region.js は PortalState.on で受け取り、PortalState.set で頼む）
+  var MODE_OF_HASH = { area: "area", themes: "themes", research: "themes", learn: "themes", participate: "themes" };
+
+  // 正しい地域コードだけを通す（2けた・6けたで、上2けたが 01〜47）。それ以外は「なし」として扱う
+  function validArea(code) {
+    code = String(code || "").trim();
+    var p = +code.slice(0, 2);
+    return /^(\d{2}|\d{6})$/.test(code) && p >= 1 && p <= 47 ? code : "";
+  }
+  function readURL() {
+    var q = new URLSearchParams(location.search);
+    var hash = "";
+    try { hash = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
+    var view = q.get("view");
+    var area = validArea(q.get("area"));
+    return {
+      view: MODE_OF_HASH[hash] || (view === "area" || view === "themes" ? view : null) || (area ? "area" : null),
+      area: area,
+      hash: hash
+    };
+  }
+  // 状態から URL を作る。表示モードと合わないハッシュは残さず、上の読み方で同じ状態に戻る形にする
+  function toURL(s) {
+    var q = new URLSearchParams(location.search);
+    q.delete("view");
+    q.delete("area");
+    var hash = s.hash;
+    if (MODE_OF_HASH[hash] && MODE_OF_HASH[hash] !== s.view) hash = "";
+    if (!hash && s.view === "themes") hash = "themes";
+    if (!hash && s.view === "area" && !s.area) hash = "area";
+    var implied = MODE_OF_HASH[hash] || (s.view && s.area ? "area" : null);
+    if (s.view && implied !== s.view) q.set("view", s.view);
+    if (s.view && s.area) q.set("area", s.area);
+    var qs = q.toString();
+    return { url: location.pathname + (qs ? "?" + qs : "") + (hash ? "#" + hash : ""), hash: hash };
+  }
+
+  var state = { view: null, area: "", hash: "" };
+  var listeners = [];
+  var lastHref = "";
+  // how：push＝履歴に足す（人の操作）／replace＝今の履歴を書きかえる（URL を整えるだけ）／none＝URL はそのまま（戻る・進む）
+  function commit(next, how) {
+    var prev = state;
+    if (how !== "none") {
+      var u = toURL(next);
+      next.hash = u.hash;
+      // URL を書きかえられない環境でも、画面の切りかえは続ける
+      try { history[how === "push" ? "pushState" : "replaceState"]({ portal: 1 }, "", u.url); } catch (e) {}
+    }
+    state = next;
+    lastHref = location.href;
+    listeners.forEach(function (fn) { fn(state, prev); });
+  }
+  window.PortalState = {
+    get: function () { return { view: state.view, area: state.area, hash: state.hash }; },
+    // patch：{ view } や { area } など変えるものだけ。hash を書かなければ、ページ内の移動先は消す
+    set: function (patch, how) {
+      var next = { view: state.view, area: state.area, hash: "" };
+      Object.keys(patch).forEach(function (k) { next[k] = patch[k]; });
+      next.area = validArea(next.area);
+      commit(next, how || "push");
+    },
+    on: function (fn) { listeners.push(fn); }
+  };
+
   // ---------- 入口のタブ ----------
-  // URL との対応：#area＝地域から調べる、#themes・#research・#learn・#participate＝テーマから探す、
-  // ?area=コード＝地域から調べる（その地域の情報）。どれでもないときは、どちらも開かない
   var TABS = {};
   document.querySelectorAll(".entry-tab").forEach(function (btn) {
     var name = btn.getAttribute("data-tab");
     TABS[name] = { btn: btn, panel: document.getElementById(btn.getAttribute("aria-controls")) };
   });
-  var THEME_IDS = ["themes", "research", "learn", "participate"];
   var current = null;
 
-  function tabFromURL() {
-    var id = decodeURIComponent(location.hash.slice(1));
-    if (THEME_IDS.indexOf(id) >= 0) return "themes";
-    if (id === "area" || new URLSearchParams(location.search).has("area")) return "area";
-    if (!id) return null;
-    return undefined; // #top・#about など：今のタブのまま
-  }
   function showTab(name) {
     if (name === current) return;
     current = name;
@@ -80,13 +147,15 @@
     var focusable = name || "area";
     Object.keys(TABS).forEach(function (k) { TABS[k].btn.tabIndex = k === focusable ? 0 : -1; });
     if (name === "themes") prepareThemes();
-    // region.js に、地域の画面が開いたことを知らせる（地図などは、開いたときに初めて作る）
-    if (name === "area") document.dispatchEvent(new Event("area:open"));
   }
   // 画面のガタつきを抑えるため、アニメーションなしで移動する
   function jumpTo(el) {
     var headerH = document.querySelector(".site-header").offsetHeight;
     window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - headerH - 8));
+  }
+  function jumpToHash(hash) {
+    var el = hash && document.getElementById(hash);
+    if (el) jumpTo(el);
   }
   // 切りかえたら、入口のボタンと中身の先頭が見える位置にする（もう見えていれば動かさない）
   function revealTabs() {
@@ -95,25 +164,30 @@
     var top = bar.getBoundingClientRect().top;
     if (top < headerH || top > window.innerHeight * 0.5) jumpTo(bar);
   }
-  // URL に合わせてタブを開き、#research などの場所へ移動する
-  function syncFromURL(scroll) {
-    var t = tabFromURL();
-    if (t === undefined) return;
-    showTab(t);
-    if (!scroll) return;
-    var id = decodeURIComponent(location.hash.slice(1));
-    var target = id && document.getElementById(id);
-    if (target && t) jumpTo(target);
-    else if (!t) window.scrollTo(0, 0);
+
+  // 戻る・進む、ページ内リンク（#themes・#about など）を押したとき
+  function onHistory() {
+    if (location.href === lastHref) return; // popstate と hashchange の両方が来ても1回だけ
+    var u = readURL();
+    if (history.state && history.state.portal) {
+      // このページで作った履歴に戻った・進んだ：URL のとおりに戻す（スクロールの位置はブラウザが戻す）
+      commit(u, "none");
+      return;
+    }
+    // ページ内リンクで移動した：#top・#about・#policy なら表示モードはそのまま。URL を整えて、移動先を見せる
+    var target = u.hash;
+    if (!MODE_OF_HASH[target]) u.view = state.view;
+    commit(u, "replace");
+    jumpToHash(target);
   }
 
   if (TABS.area && TABS.themes) {
+    window.PortalState.on(function (s) { showTab(s.view); });
     Object.keys(TABS).forEach(function (name) {
       TABS[name].btn.addEventListener("click", function () {
         if (current === name) { revealTabs(); return; }
-        showTab(name);
-        // URL に残して、戻る・進む・共有でも同じタブが開くようにする（選んでいる地域 ?area= はそのまま）
-        history.pushState(null, "", location.pathname + location.search + "#" + name);
+        // 表示モードだけを変える（選んでいる地域はそのまま）。戻る・進む・共有でも同じタブが開く
+        window.PortalState.set({ view: name }, "push");
         revealTabs();
       });
       // ← → キーでもう一方のタブへ
@@ -126,10 +200,13 @@
         next.click();
       });
     });
-    // ページ内リンク（#themes・#research など）や、戻る・進むのとき
-    window.addEventListener("hashchange", function () { syncFromURL(true); });
-    window.addEventListener("popstate", function () { syncFromURL(false); });
-    syncFromURL(true);
+    window.addEventListener("popstate", onHistory);
+    window.addEventListener("hashchange", onHistory);
+    // 開いたときの URL を読んで、整えた形に書きかえる（不正な地域コードなどは消える）
+    var first = readURL();
+    var firstTarget = first.hash;
+    commit(first, "replace");
+    jumpToHash(firstTarget);
     window.ENTRY_READY = true;
   }
 

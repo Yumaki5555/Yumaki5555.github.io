@@ -4,6 +4,8 @@
 
 .area { --c: var(--accent); --tint: var(--learn-tint); padding-block: 24px 56px; background: var(--white); }
 .area[data-mode="view"] { padding-top: 16px; }
+/* region.js が動くまでは、地図や選択欄（動かない部品）を出さず、案内の文だけを出す */
+.area:not([data-ready]) .area-picker, .area:not([data-ready]) .area-current, .area:not([data-ready]) .area-sub { display: none; }
 
 /* パソコン：左に地図、右に見出し・名前で探す・一覧から選ぶ。
    スマホ：見出し → 名前で探す → 地図 → 一覧から選ぶ（地図が小さく押しにくいので、名前で探すを先に出す） */
@@ -188,6 +190,9 @@
   margin-bottom: 16px; padding: 18px;
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
 }
+/* 段の番号を決めておく（時点・範囲の段が空のカードがあっても、ボタンなどの位置が横一列にそろう） */
+.topic-head { grid-row: 1; } .topic-about { grid-row: 2; } .topic-value { grid-row: 3; }
+.topic-note { grid-row: 4; } .topic-scope { grid-row: 5; } .topic-foot { grid-row: 6; }
 .topic-head { display: flex; align-items: center; gap: 10px; }
 .topic-icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 10px; background: var(--learn-tint); color: var(--accent); }
 .topic-icon .ico { width: 26px; height: 26px; stroke-width: 2; }
@@ -229,7 +234,12 @@
 .topic-scope.is-exact .scope-tag { color: var(--accent-dark); }
 .topic-scope.is-wider .scope-tag { color: #8A5A00; }
 .topic-scope.is-top .scope-tag, .topic-scope.is-pending .scope-tag { color: #59656F; }
-.topic-scope.is-all .scope-tag { color: var(--navy); }
+.topic-scope.is-all .scope-tag, .topic-scope.is-nation .scope-tag { color: var(--navy); }
+
+/* 全国共通の2サイト：地域の8分野とは線で区切り、地域を選んでも変わらないことを一文で示す */
+.topic-group-nation { padding-top: 22px; border-top: 2px solid var(--line); }
+.topic-group + .topic-group-nation { margin-top: 34px; }
+.topic-group-lead { margin: -4px 0 12px; color: var(--muted); font-size: .97rem; line-height: 1.6; }
 
 .topic-foot { align-self: end; }
 .btn-topic {
