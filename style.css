@@ -453,3 +453,5 @@ html:not(.js) .entry { display: none; }
   .brand-ico { width: 40px; height: 40px; }
   .brand-ico svg { width: 28px; height: 28px; }
 }
+
+.hero-title:focus { outline: none; }

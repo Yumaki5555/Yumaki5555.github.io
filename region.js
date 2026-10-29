@@ -452,7 +452,14 @@
   }
   function onState(s) {
     if (s.view === "area") start();
-    if (started) follow(s.area);
+    if (!started) return;
+    follow(s.area);
+    // 最初の状態に戻ったとき（ロゴの「日本を知る。」など）：地図の拡大と、名前で探す欄の文字も元に戻す
+    if (!s.view && !s.area) {
+      zoom("all");
+      closeList();
+      search.value = "";
+    }
   }
   State.on(onState);
   onState(State.get());

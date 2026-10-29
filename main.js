@@ -210,6 +210,22 @@
     window.ENTRY_READY = true;
   }
 
+  // 「日本を知る。」（ロゴ）とフッターの「ホーム」：何も選んでいない最初の状態（入口の2つのボタンだけ・全国）に戻す。
+  // リンク先は "./" なので、JavaScript が動かないときや新しいタブで開いたときも、最初の状態のページが開く
+  document.querySelectorAll("[data-home]").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button) return;
+      e.preventDefault();
+      if (toggle && nav) setMenu(false);
+      var s = window.PortalState.get();
+      // すでに最初の状態なら履歴は足さない（URL に残ったものだけ消す）
+      window.PortalState.set({ view: null, area: "" }, s.view || s.area ? "push" : "replace");
+      window.scrollTo(0, 0);
+      var title = document.getElementById("hero-title");
+      if (title) title.focus({ preventScroll: true });
+    });
+  });
+
   // スマホのメニュー
   var toggle = document.querySelector(".menu-toggle");
   var nav = document.getElementById("site-nav");

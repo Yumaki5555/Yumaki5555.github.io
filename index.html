@@ -29,22 +29,22 @@ document.documentElement.classList.add("js");
 setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.classList.remove("js"); }, 4000);
 </script>
 <!-- ?v= の日付は、css・js を直したら書きかえる（古いファイルが残らないように） -->
-<link rel="stylesheet" href="style.css?v=20261029g">
+<link rel="stylesheet" href="style.css?v=20261029h">
 <link rel="stylesheet" href="area.css?v=20261029d">
 <script src="sites.js?v=20261029h" defer></script>
 <script src="brand-icons.js?v=20261029b" defer></script>
 <script src="site-cards.js?v=20261029e" defer></script>
-<script src="main.js?v=20261029c" defer></script>
+<script src="main.js?v=20261029d" defer></script>
 <script src="data/japan-map.js?v=20261028g" defer></script>
 <script src="region-topics.js?v=20261029d" defer></script>
-<script src="region.js?v=20261029c" defer></script>
+<script src="region.js?v=20261029d" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
 
 <header class="site-header">
   <div class="header-inner wrap">
-    <a class="brand" href="#top">
+    <a class="brand" href="./" data-home aria-label="日本を知る。（最初の画面に戻る）">
       <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#203750"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M19.6 19.6 25 25" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M11 17.2v-2.6M14 17.2v-5.4M17 17.2v-3.8" stroke="#8FD9B8" stroke-width="2" stroke-linecap="round"/></svg>
       <span>日本を知る。</span>
     </a>
@@ -69,7 +69,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
     <div class="wrap hero-grid">
     <div class="hero-main">
     <div class="hero-inner">
-      <h1 class="hero-title" id="hero-title">日本を知る。</h1>
+      <h1 class="hero-title" id="hero-title" tabindex="-1">日本を知る。</h1>
       <p class="hero-catch-wrap"><span class="hero-catch">日本のこと、あなたのまちのこと。</span><br class="br-narrow"><span class="hero-catch">地図から調べて、比べて、知る。</span></p>
     </div>
     <!-- 2つの入口（同じ大きさ・同じ配色）。押した方の中身だけを下に表示する -->
@@ -382,7 +382,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
     </div>
     <nav class="footer-nav" aria-label="フッターメニュー">
       <ul>
-        <li><a href="#top">ホーム</a></li>
+        <li><a href="./" data-home>ホーム</a></li>
         <li><a href="#area">地域から調べる</a></li>
         <li><a href="#themes">テーマから探す</a></li>
         <li><a href="#about">このサイトについて</a></li>
