@@ -273,7 +273,8 @@ html:not(.js) .entry { display: none; }
   background: var(--tint); color: var(--text);
   font-size: .95rem; font-weight: 700; line-height: 1.6;
 }
-.card-updated { margin: 0; font-size: .92rem; color: var(--muted); }
+/* ページの更新日：補足の段のいちばん下に寄せ、同じ行のカードで高さをそろえる（ボタンのすぐ上） */
+.card-updated { margin: auto 0 0; font-size: .92rem; color: var(--muted); }
 .card-credit { display: flex; flex-direction: column; margin: 0; font-size: .95rem; line-height: 1.7; color: var(--muted); }
 .card-credit a { position: relative; z-index: 2; color: var(--navy); font-weight: 700; text-underline-offset: 3px; }
 .card-credit a:hover { color: var(--research); }
@@ -447,7 +448,8 @@ html:not(.js) .entry { display: none; }
   .cat-section .section-icon { display: none; }
   .section-head p { font-size: .97rem; line-height: 1.75; }
   .card-desc { font-size: .96rem; line-height: 1.75; }
-  .card-foot { margin-top: auto; }
+  .card-foot { margin-top: auto; align-self: stretch; } /* ボタンをパソコンと同じく横幅いっぱいに */
+  .card-extra { flex: 1 0 auto; } /* 補足の段を伸ばして、ページの更新日をボタンのすぐ上にそろえる */
   .btn-site { height: 50px; }
   .swipe-hint { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; color: var(--muted); font-size: .92rem; font-weight: 700; }
   .swipe-hint .ico { width: 20px; height: 20px; }

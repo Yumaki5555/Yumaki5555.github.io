@@ -52,8 +52,9 @@
         '<div class="card-extra">' +
           highlight +
           credit +
-          (site.checkUpdate ? '<p class="card-updated" data-update-url="' + esc(site.url) + '" hidden></p>' : "") +
           pair +
+          // ページの更新日は、どのカードでも補足のいちばん下（ボタンのすぐ上）に置く
+          (site.checkUpdate ? '<p class="card-updated" data-update-url="' + esc(site.url) + '" hidden></p>' : "") +
         "</div>" +
         '<div class="card-foot">' +
           '<a class="btn-site" href="' + esc(site.url) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(site.name) + 'のサイトを見る（新しいタブで開きます）">' +
