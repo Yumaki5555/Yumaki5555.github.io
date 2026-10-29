@@ -272,3 +272,10 @@
 }
 .topic-guide:hover { color: var(--blue-dark); }
 .topic-guide .ico { width: 15px; height: 15px; }
+/* 未調査のときの案内（例：「江東区は未調査」の下に「東京都の協定を見る」） */
+.topic-value-link {
+  flex-basis: 100%; display: inline-flex; align-items: center; gap: 4px;
+  color: var(--blue); font-size: .95rem; font-weight: 700; line-height: 1.5; text-underline-offset: 3px;
+}
+.topic-value-link:hover { color: var(--blue-dark); }
+.topic-value-link .ico { width: 15px; height: 15px; }

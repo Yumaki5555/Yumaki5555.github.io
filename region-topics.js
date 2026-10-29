@@ -213,7 +213,7 @@
       top: GH + "zairyu/index.html",
       q: function (n) { return n ? n + "には外国人が何人住んでいる？" : "日本には外国人が何人住んでいる？"; },
       see: "国籍・在留資格（日本に住むための資格）・推移を見る",
-      guide: function () { return { label: "図で知る", site: "図で見る、日本に住む外国人", href: GUIDE.zairyu }; },
+      guide: function () { return { label: "図でやさしく知る", site: "図で見る、日本に住む外国人", href: GUIDE.zairyu }; },
       url: function (a) {
         var base = GH + "zairyu/";
         if (!a.muni) return base + "pref-" + ROMA[+a.pref - 1] + ".html";
@@ -225,8 +225,8 @@
         return load.zairyu(this.url(a)).then(function (d) {
           if (d.missing) {
             return {
-              href: prefURL, scope: "wider", text: pname(a) + "のページが開きます（" + a.muni.name + "のページはありません）",
-              stat: { state: "unlisted", value: "統計に載っていません", note: "外国人住民がいない町村は、国の在留外国人統計の表に載りません（2017年12月末から）。" }
+              href: prefURL, scope: "wider", text: pname(a) + "のページが開きます",
+              stat: { state: "unlisted", value: a.muni.name + "は統計に載っていません", note: "外国人住民がいない町村は、在留外国人統計の表に載りません（2017年12月末から）。" }
             };
           }
           if (typeof d.total !== "number") return {};
@@ -262,7 +262,7 @@
       q: function (n) { return n ? n + "にモスクはある？" : "日本のどこにモスクがある？"; },
       see: "施設の数・建設計画・墓地の情報を見る",
       guide: function (a) {
-        return { label: "図で知る", site: "日本のモスクを知る", href: a ? GUIDE.mosque + "region.html?pref=" + encodeURIComponent(pname(a)) : GUIDE.mosque };
+        return { label: "図でやさしく知る", site: "日本のモスクを知る", href: a ? GUIDE.mosque + "region.html?pref=" + encodeURIComponent(pname(a)) : GUIDE.mosque };
       },
       link: function (a) {
         if (a.muni) {
@@ -304,7 +304,7 @@
           var when = "サイトの更新：" + jdate(D.updated) + "。";
           if (pi < 0) {
             return {
-              href: base, scope: "top", text: "トップページが開きます（" + pname(a) + "は掲載対象外です）",
+              href: base, scope: "top", text: "トップページが開きます",
               stat: { state: "outside", value: pname(a) + "は対象外", note: "このサイトの対象は" + D.prefs.slice(0, 4).join("・") + "など" + D.prefs.length + "都道府県です。" }
             };
           }
@@ -342,8 +342,8 @@
             });
             if (!city) {
               return {
-                href: prefURL, scope: "wider", text: pname(a) + "の地図が開きます（" + a.muni.name + "の施設は載っていません）",
-                stat: { state: "unlisted", value: "掲載なし", note: "0件とは限りません（一覧が公表されていない・まだ取り込んでいない場合があります）。" + when }
+                href: prefURL, scope: "wider", text: pname(a) + "の地図が開きます",
+                stat: { state: "unlisted", value: a.muni.name + "は掲載なし", note: "0件とは限りません（一覧が公表されていない・まだ取り込んでいない場合があります）。" + when }
               };
             }
             var total = city.n.reduce(function (s, x) { return s + x; }, 0);
@@ -394,7 +394,7 @@
         return load.tabunka().then(function (S) {
           var rec = S.sum[code];
           var when = "（" + jdate(S.generated) + "集計）";
-          if (!rec) return { stat: { state: "unconfirmed", value: "未調査", note: "まだ調べていません（0円ではありません）。調べた自治体から順に公開しています" + when + "。" } };
+          if (!rec) return { stat: { state: "unconfirmed", value: aname(a) + "は未調査", note: "0円ではありません。調べた自治体から順に公開しています" + when + "。" } };
           var pick = null;
           Object.keys(rec).sort().reverse().some(function (fy) {
             return ["当初予算", "補正後予算", "決算"].some(function (st) {
@@ -450,7 +450,7 @@
       // 市区町村のページは、サイトが調べた政令指定都市20市だけ。データを読むまでは都道府県のページ
       link: function (a) {
         var href = GH + "mou-map/#/pref/" + a.pref;
-        if (a.muni) return { href: href, scope: "wider", text: pname(a) + "のページが開きます（" + a.muni.name + "のページがあるか確認できていません）", pending: true };
+        if (a.muni) return { href: href, scope: "wider", text: pname(a) + "のページが開きます", pending: true };
         return { href: href, scope: "exact", text: pname(a) + "のページが開きます" };
       },
       resolve: function (a) {
@@ -458,10 +458,10 @@
         return load.mou().then(function (S) {
           var L = S.labels || {};
           var SL = S.survey_labels || {};
-          var when = jdate(S.generated) + "時点の判定（MOUのみ。同じ協定の更新は1件、報道のみの情報は除く）。";
+          var when = mdate(S.generated) + "時点。";
           // 有効確認を大きく出し、有効性未確認・終了確認は必ず別に並べる（混ぜて合計しない）
           function stat(c, note) {
-            if (!c || !c.mou) return { state: "unconfirmed", value: "未調査", note: "まだ調べていません（0件ではありません）。" };
+            if (!c || !c.mou) return { state: "unconfirmed", value: "未調査", note: "0件ではありません。" };
             var m = c.mou;
             var sub = ["unconfirmed", "ended_confirmed", "signed_not_started", "planned"].filter(function (k) { return m[k] || k === "unconfirmed" || k === "ended_confirmed"; })
               .map(function (k) { return (L[k] || k) + " " + num(m[k]) + "件"; }).join("・");
@@ -476,8 +476,12 @@
             var cm = S.municipalities && S.municipalities[a.muni.code];
             if (!cm) {
               return {
-                href: base + "#/pref/" + a.pref, scope: "wider", text: pname(a) + "のページが開きます（" + a.muni.name + "の協定はまだ調べていません）",
-                stat: { state: "unconfirmed", value: "未調査", note: "市区町村の協定は、政令指定都市20市の外国人材・労働分野だけを調べています（0件ではありません）。" }
+                href: base + "#/pref/" + a.pref, scope: "wider", text: pname(a) + "のページが開きます",
+                stat: {
+                  state: "unconfirmed", value: a.muni.name + "は未調査",
+                  more: { text: pname(a) + "の協定を見る", href: base + "#/pref/" + a.pref },
+                  note: "市区町村は政令指定都市20市の外国人材分野だけを調べています（0件ではありません）。"
+                }
               };
             }
             return {
@@ -489,7 +493,7 @@
           if (!cp) return {};
           var other = cp.survey && cp.survey.other_fields;
           return {
-            stat: stat(cp.counts, pname(a) + "が結んだ協定（県内の市区町村の分は除く）。" +
+            stat: stat(cp.counts, pname(a) + "が結んだ協定（市区町村の分は除く）。" +
               (other === "partial" || other === "not_surveyed" ? "外国人材以外の分野は" + SL[other] + "。" : ""))
           };
         });
@@ -544,11 +548,11 @@
             if (!co) {
               return {
                 href: base + "pref/?pref=" + encodeURIComponent(pn), scope: "wider",
-                text: pn + "の募集が開きます（" + a.muni.name + "は収集の対象外です）",
+                text: pn + "の募集が開きます",
                 stat: {
                   state: "outside", value: a.muni.name + "は対象外",
                   sub: "募集中：" + [prefTxt, natTxt].filter(Boolean).join("・"),
-                  note: "市区町村は政令市・中核市・東京23区の105市区だけを集めています。" + when
+                  note: "市区町村は政令市・中核市・東京23区の105市区だけを集めています。"
                 }
               };
             }
@@ -594,7 +598,7 @@
       link: function (a) {
         var href = GH + "shomei/?pref=" + encodeURIComponent(pshort(a)) + "#results";
         return a.muni
-          ? { href: href, scope: "wider", text: pname(a) + "の署名が開きます（市区町村ごとの分類はありません）" }
+          ? { href: href, scope: "wider", text: pname(a) + "の署名が開きます（市区町村の分類なし）" }
           : { href: href, scope: "exact", text: pname(a) + "の署名が開きます" };
       },
       resolve: function (a) {
@@ -662,7 +666,7 @@
     var g = t.guide && t.guide(a);
     if (!g) return "";
     return '<a class="topic-guide" href="' + esc(g.href) + '" target="_blank" rel="noopener noreferrer">' +
-      esc(g.label) + "：" + esc(g.site) + EXT + '<span class="sr-only">（新しいタブで開きます）</span></a>';
+      esc(g.label) + EXT + '<span class="sr-only">（' + esc(g.site) + "が新しいタブで開きます）</span></a>";
   }
   // 開くページ：記号と色に、短い1文を添える（「地域を引き継ぎ」などの区分名は、読み上げとマウスを重ねたときに出す）
   function setLink(li, r) {
@@ -684,8 +688,14 @@
       note.textContent = "";
       return;
     }
-    v.innerHTML = (st.state ? '<span class="state-tag">' + STATE[st.state] + "</span>" : "") + '<span class="topic-value-main">' + st.value + "</span>" +
+    // 数値の欄に「〇〇県の協定を見る」などの案内を出すときは、同じ行き先を言う「開くページ」の行は省く
+    li.querySelector(".topic-scope").hidden = !!st.more;
+    // 「確認済みで0件」「取得失敗」の印だけ出す（「未調査」「対象外」などは数値の欄の言葉で分かるので、印を重ねない）
+    var tag = st.state === "zero" || st.state === "error";
+    v.innerHTML = (tag ? '<span class="state-tag">' + STATE[st.state] + "</span>" : "") + '<span class="topic-value-main">' + st.value + "</span>" +
       (st.extra ? '<span class="topic-value-extra">' + esc(st.extra) + "</span>" : "") +
+      (st.more ? '<a class="topic-value-link" href="' + esc(st.more.href) + '" target="_blank" rel="noopener noreferrer">' + esc(st.more.text) + EXT +
+        '<span class="sr-only">（新しいタブで開きます）</span></a>' : "") +
       (st.sub ? '<span class="topic-value-sub">' + esc(st.sub) + "</span>" : "");
     note.textContent = st.note || "";
   }

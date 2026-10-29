@@ -9,7 +9,7 @@
 // summary  … 1行の短い要約
 // points   … そのサイトで具体的にできること（2〜3個、短く）。変わる件数は書かない
 // note     … 補足のひとこと（なくてもよい）
-// pair     … 「詳しく調べる版」と「図で学ぶ版」をつなぐ案内（相手の id と、案内の言葉）
+// pair     … 「詳しく調べる版」と「図で学ぶ版」をつなぐ案内（相手の id と、案内の言葉。nameless: true なら相手のサイト名を出さない）
 // guide    … 初心者向けの解説への補助リンク { label, site, url }（実際にある解説だけ。URL は開いて確かめたものだけ）
 // checkUpdate … true にすると、そのサイトのページ更新日を読み取って表示します
 //               （読み取れるのは yumaki5555.github.io のサイトだけです）
@@ -79,7 +79,7 @@ window.SITES = [
     shot: "img/shots/zairyu.webp",
     alt: "数でみる在留外国人の画面。都道府県ごとの在留外国人の数を、色の濃さで表した日本地図",
     checkUpdate: true,
-    pair: { id: "zairyu-guide", label: "図で知る" }
+    pair: { id: "zairyu-guide", label: "図でやさしく知る", nameless: true }
   },
   {
     id: "minpaku-map",
@@ -104,7 +104,7 @@ window.SITES = [
     shot: "img/shots/mosque-map.webp",
     alt: "日本のモスク情報の地図画面。日本地図にモスク・礼拝所の位置がピンで示され、右側に施設の一覧が並んでいる",
     checkUpdate: true,
-    pair: { id: "mosque-guide", label: "図で知る" }
+    pair: { id: "mosque-guide", label: "図でやさしく知る", nameless: true }
   },
   {
     id: "kansensho",
@@ -114,7 +114,7 @@ window.SITES = [
     icon: "kansensho",
     summary: "感染症の国別状況と水際対策を調べる",
     points: ["HIV・梅毒・はしか・結核を国別に比較", "国・在留資格から入国時の検査を確認", "日本の患者数の推移と治療費の負担"],
-    guide: { label: "まず3分で知る", site: "結核編・HIV/エイズ編", url: "https://yumaki5555.github.io/kansensho/#sanpun-tb" },
+    guide: { label: "まず3分で知る", site: "まず3分でわかる（結核編・HIV/エイズ編）", url: "https://yumaki5555.github.io/kansensho/#sanpun-tb" },
     shot: "img/shots/kansensho.webp",
     alt: "世界の感染症と日本の水際対策の国別比較画面。国ごとの結核の罹患率を横棒グラフで比べている",
     checkUpdate: true

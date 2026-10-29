@@ -29,20 +29,23 @@
             esc(handle) + '<span class="sr-only">（新しいタブで開きます）</span>' +
           "</a>）</p>";
     }
-    // 「まず3分で知る」など、初心者向けの解説への補助リンク（同じ目的の「図で知る」案内がある場合は、どちらか一方だけ）
+    // 「まず3分で知る」など、初心者向けの解説への補助リンク（同じ目的の「図でやさしく知る」案内がある場合は、どちらか一方だけ）。
+    // 見出しでテーマは分かるので、文言だけを出す（行き先のサイト名は読み上げ用）
     var guide = site.guide
       ? '<p class="card-guide"><a class="pair-link" href="' + esc(site.guide.url) + '" target="_blank" rel="noopener noreferrer">' +
-          esc(site.guide.label) + (site.guide.site ? "：" + esc(site.guide.site) : "") + EXTERNAL_ICON +
-          '<span class="sr-only">（新しいタブで開きます）</span></a></p>'
+          esc(site.guide.label) + EXTERNAL_ICON +
+          '<span class="sr-only">（' + esc(site.guide.site || site.name) + "が新しいタブで開きます）</span></a></p>"
       : "";
     var pair = "";
     var other = site.pair && siteById[site.pair.id];
     if (other) {
-      pair =
-        '<p class="pair"><span class="pair-label">' + esc(site.pair.label) + "：</span>" +
-          '<a class="pair-link" href="' + esc(other.url) + '" target="_blank" rel="noopener noreferrer">' +
-            esc(other.name) + EXTERNAL_ICON + '<span class="sr-only">（新しいタブで開きます）</span>' +
-          "</a></p>";
+      pair = site.pair.nameless
+        ? '<p class="pair"><a class="pair-link" href="' + esc(other.url) + '" target="_blank" rel="noopener noreferrer">' +
+            esc(site.pair.label) + EXTERNAL_ICON + '<span class="sr-only">（' + esc(other.name) + "が新しいタブで開きます）</span></a></p>"
+        : '<p class="pair"><span class="pair-label">' + esc(site.pair.label) + "：</span>" +
+            '<a class="pair-link" href="' + esc(other.url) + '" target="_blank" rel="noopener noreferrer">' +
+              esc(other.name) + EXTERNAL_ICON + '<span class="sr-only">（新しいタブで開きます）</span>' +
+            "</a></p>";
     }
     return (
       '<article class="card cat-' + esc(site.category) + '" id="site-' + esc(site.id) + '">' +
