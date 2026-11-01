@@ -194,7 +194,7 @@
   //   stat … { value: 大きく出す文, extra: 数値の意味が分かる補足を1行（同じ条件で比べられるときだけ。なくてもよい）,
   //            sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし） }
   // guide(a) … 「まず3分で知る」「図で知る」の補助リンク { label, href, site }（実際にある解説だけ。なくてもよい）
-  // operator … ほかの方のサイトのとき、sites.js の id（運営者の名前と X をカードのいちばん下に出す）
+  // operator … ほかの方のサイトのとき、sites.js の id（運営者の名前と X を、分野名の下に出す）
   var GROUPS = [
     { id: "now", mark: "A", title: "地域の現状を知る" },
     { id: "gov", mark: "B", title: "行政の動きを調べる" },
@@ -657,8 +657,8 @@
         '<div class="topic-head">' +
           (window.brandIcon ? window.brandIcon(t.icon) : "") +
           '<div><h4 class="topic-title">' + esc(t.title) + "</h4>" +
-          // 分野名とサイト名が同じ（自治体カルテ）ときは、同じ文字を2つ並べない
-          (t.site !== t.title ? '<p class="topic-site">' + esc(t.site) + "</p>" : "") + "</div>" +
+          // 分野名とサイト名が同じ（自治体カルテ）ときは、同じ文字を2つ並べない。ほかの方のサイトは、その下に運営者
+          (t.site !== t.title ? '<p class="topic-site">' + esc(t.site) + "</p>" : "") + creditHTML(t) + "</div>" +
         "</div>" +
         '<p class="topic-q">' + esc(t.q(n, a)) + "</p>" +
         '<div class="topic-value" aria-live="polite"></div>' +
@@ -666,7 +666,6 @@
           '<li class="topic-see">' + esc(see) + "</li>" +
           '<li class="topic-scope"></li>' +
           '<li class="topic-note"></li>' +
-          creditHTML(t) +
         "</ul>" +
         '<div class="topic-foot">' + guideHTML(t, a) +
           '<a class="btn-topic" href="' + esc(t.top) + '" target="_blank" rel="noopener noreferrer">詳しく調べる' + EXT +
@@ -680,9 +679,9 @@
     if (!s || !s.operator) return "";
     var op = s.operator;
     var handle = op.x.replace(/^https?:\/\/(x|twitter)\.com\//, "@");
-    return '<li class="topic-credit">運営：' + esc(op.name) +
+    return '<p class="topic-credit">運営：' + esc(op.name) +
       '<span class="nowrap">（X <a href="' + esc(op.x) + '" target="_blank" rel="noopener noreferrer">' + esc(handle) +
-      '<span class="sr-only">（新しいタブで開きます）</span></a>）</span></li>';
+      '<span class="sr-only">（新しいタブで開きます）</span></a>）</span></p>';
   }
   function guideHTML(t, a) {
     var g = t.guide && t.guide(a);

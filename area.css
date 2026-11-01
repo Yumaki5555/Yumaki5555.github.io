@@ -233,8 +233,8 @@
 .topic-scope.is-all .ico, .topic-scope.is-nation .ico { color: var(--navy); }
 .topic-note { color: var(--muted); font-size: .86rem; padding-left: 23px; }
 .topic-note:empty { display: none; }
-/* ほかの方のサイトの運営者（例：運営：自治体カルテさん（X @zititai_karte）） */
-.topic-points .topic-credit { display: block; color: var(--muted); font-size: .86rem; padding-left: 23px; }
+/* ほかの方のサイトの運営者（分野名の下。例：運営：自治体カルテさん（X @zititai_karte）） */
+.topic-credit { margin: 0; color: var(--muted); font-size: .86rem; line-height: 1.4; }
 .topic-credit a { color: var(--blue); font-weight: 700; text-underline-offset: 3px; }
 .topic-credit a:hover { color: var(--blue-dark); }
 
