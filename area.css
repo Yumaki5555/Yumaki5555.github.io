@@ -233,6 +233,10 @@
 .topic-scope.is-all .ico, .topic-scope.is-nation .ico { color: var(--navy); }
 .topic-note { color: var(--muted); font-size: .86rem; padding-left: 23px; }
 .topic-note:empty { display: none; }
+/* ほかの方のサイトの運営者（例：運営：自治体カルテさん（X @zititai_karte）） */
+.topic-points .topic-credit { display: block; color: var(--muted); font-size: .86rem; padding-left: 23px; }
+.topic-credit a { color: var(--blue); font-weight: 700; text-underline-offset: 3px; }
+.topic-credit a:hover { color: var(--blue-dark); }
 
 /* 全国共通の2サイト：地域の8分野とは線で区切り、地域を選んでも変わらないことを一文で示す */
 .topic-group-nation { padding-top: 22px; border-top: 2px solid var(--line); }

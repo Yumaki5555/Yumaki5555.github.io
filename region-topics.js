@@ -194,6 +194,7 @@
   //   stat … { value: 大きく出す文, extra: 数値の意味が分かる補足を1行（同じ条件で比べられるときだけ。なくてもよい）,
   //            sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし） }
   // guide(a) … 「まず3分で知る」「図で知る」の補助リンク { label, href, site }（実際にある解説だけ。なくてもよい）
+  // operator … ほかの方のサイトのとき、sites.js の id（運営者の名前と X をカードのいちばん下に出す）
   var GROUPS = [
     { id: "now", mark: "A", title: "地域の現状を知る" },
     { id: "gov", mark: "B", title: "行政の動きを調べる" },
@@ -426,7 +427,7 @@
       }
     },
     {
-      id: "karte", group: "gov", icon: "karte", title: "自治体カルテ", site: "自治体カルテ",
+      id: "karte", group: "gov", icon: "karte", title: "自治体カルテ", site: "自治体カルテ", operator: "zititai-karte",
       // 2026-11 から www つきは www なしへ転送される。年を省くと、各ページの最新の年度へ転送される（年を書きこまない）
       top: "https://zititai-karte.com/",
       q: function (n) { return n ? n + "のお金と人口は、どうなっている？" : "自治体のお金と人口は、どうなっている？"; },
@@ -446,7 +447,7 @@
           { label: "外国人住民", sub: "地図", href: b + "/gaikoku" }
         ];
       },
-      none: "ほかの方が運営するサイトのため、数値はリンク先で確認してください。"
+      none: "ほかの方のサイトのため、数値はリンク先で確認してください。"
     },
     {
       id: "mou", group: "gov", icon: "mou", title: "MOU・海外との協定", site: "日本と世界のMOU・協定マップ",
@@ -630,11 +631,10 @@
     },
     // ---------- 全国共通（地域を引き継がない。地域ごとの数値も出さない） ----------
     {
-      id: "policy", group: "nation", nation: true, icon: "policy", title: "国の政策・法案", site: "政策ログJP",
+      id: "policy", group: "nation", nation: true, icon: "policy", title: "国の政策・法案", site: "政策ログJP", operator: "policy-log",
       top: "https://policy-log.jp/",
       q: function () { return "国では今、どんな政策や法案が進んでいる？"; },
-      see: "政策・法案の検討・審議・成立の状況を見る",
-      credit: "運営：Policy-log.jpさん（ほかの方のサイトです）"
+      see: "政策・法案の検討・審議・成立の状況を見る"
     },
     {
       id: "kansensho", group: "nation", nation: true, icon: "kansensho", title: "感染症と水際対策", site: "世界の感染症と日本の水際対策",
@@ -657,7 +657,8 @@
         '<div class="topic-head">' +
           (window.brandIcon ? window.brandIcon(t.icon) : "") +
           '<div><h4 class="topic-title">' + esc(t.title) + "</h4>" +
-          '<p class="topic-site">' + esc(t.site) + "</p></div>" +
+          // 分野名とサイト名が同じ（自治体カルテ）ときは、同じ文字を2つ並べない
+          (t.site !== t.title ? '<p class="topic-site">' + esc(t.site) + "</p>" : "") + "</div>" +
         "</div>" +
         '<p class="topic-q">' + esc(t.q(n, a)) + "</p>" +
         '<div class="topic-value" aria-live="polite"></div>' +
@@ -665,12 +666,23 @@
           '<li class="topic-see">' + esc(see) + "</li>" +
           '<li class="topic-scope"></li>' +
           '<li class="topic-note"></li>' +
+          creditHTML(t) +
         "</ul>" +
         '<div class="topic-foot">' + guideHTML(t, a) +
           '<a class="btn-topic" href="' + esc(t.top) + '" target="_blank" rel="noopener noreferrer">詳しく調べる' + EXT +
           '<span class="sr-only">（' + esc(t.site) + "が新しいタブで開きます）</span></a></div>" +
       "</li>"
     );
+  }
+  // 運営：〇〇さん（X @〇〇）…「テーマから探す」のカード（site-cards.js）と同じ書き方
+  function creditHTML(t) {
+    var s = t.operator && (window.SITES || []).filter(function (x) { return x.id === t.operator; })[0];
+    if (!s || !s.operator) return "";
+    var op = s.operator;
+    var handle = op.x.replace(/^https?:\/\/(x|twitter)\.com\//, "@");
+    return '<li class="topic-credit">運営：' + esc(op.name) +
+      '<span class="nowrap">（X <a href="' + esc(op.x) + '" target="_blank" rel="noopener noreferrer">' + esc(handle) +
+      '<span class="sr-only">（新しいタブで開きます）</span></a>）</span></li>';
   }
   function guideHTML(t, a) {
     var g = t.guide && t.guide(a);
@@ -741,7 +753,6 @@
           // 全国共通：地域を選んでも同じページ。地域ごとの数値は作らない
           setLink(li, { href: t.top, scope: "nation", text: "サイトのトップページが開きます（地域は引き継ぎません）" });
           setStat(li, null, "地域ごとの数値はありません（国全体・世界の情報です）");
-          li.querySelector(".topic-note").textContent = t.credit || "";
           return;
         }
         if (!a) {
