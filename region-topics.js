@@ -427,14 +427,24 @@
     },
     {
       id: "karte", group: "gov", icon: "karte", title: "自治体カルテ", site: "自治体カルテ",
-      top: "https://www.zititai-karte.com/",
+      // 2026-11 から www つきは www なしへ転送される。年を省くと、各ページの最新の年度へ転送される（年を書きこまない）
+      top: "https://zititai-karte.com/",
       q: function (n) { return n ? n + "のお金と人口は、どうなっている？" : "自治体のお金と人口は、どうなっている？"; },
-      see: "歳入・歳出の内訳と人口をほかの自治体と比べる",
+      see: "財政・人口・外国人住民の数字を、ほかの自治体と比べる",
       link: function (a) {
-        var base = "https://www.zititai-karte.com/";
-        return a.muni
-          ? { href: base + "m/" + a.muni.code, scope: "exact", text: a.muni.name + "のページ（最新年度の決算）が開きます" }
-          : { href: base + "pref/" + prefCode6(a.pref), scope: "exact", text: pname(a) + "のページ（最新年度の決算）が開きます" };
+        return { href: this.base(a), scope: "exact", text: aname(a) + "のページが開きます（どれも最新の年度）" };
+      },
+      base: function (a) { return this.top + (a.muni ? "m/" + a.muni.code : "pref/" + prefCode6(a.pref)); },
+      // 数値の欄に出す4つの入り口（どれも選んだ地域のページ）
+      pages: function (a) {
+        var b = this.base(a);
+        return [
+          { label: "財政", href: b },
+          { label: "年齢構成比", href: b + "/zinko" },
+          // 出生数の図を「子の国籍：外国人」で開く（サイトの「リンクをコピー」と同じ形）
+          { label: "出生関連", sub: "（外国人）", href: b + "/syussyo?fig=births&nat=foreign" },
+          { label: "外国人住民", sub: "地図", href: b + "/gaikoku" }
+        ];
       },
       none: "ほかの方が運営するサイトのため、数値はリンク先で確認してください。"
     },
@@ -692,6 +702,17 @@
     li.querySelector(".topic-scope").hidden = !!st.more;
     // 「確認済みで0件」「取得失敗」の印だけ出す（「未調査」「対象外」などは数値の欄の言葉で分かるので、印を重ねない）
     var tag = st.state === "zero" || st.state === "error";
+    if (st.pages) {
+      v.className += " has-pages";
+      v.innerHTML = '<ul class="topic-pages">' + st.pages.map(function (p) {
+        // sub は途中で折り返さない（「出生関連（外 / 国人）」「外国人住民地 / 図」とならないように）
+        return '<li><a href="' + esc(p.href) + '" target="_blank" rel="noopener noreferrer"><span>' + esc(p.label) +
+          (p.sub ? '<span class="nowrap">' + esc(p.sub) + "</span>" : "") + "</span>" + EXT +
+          '<span class="sr-only">（' + esc(st.site) + "の" + esc(st.area) + "のページが新しいタブで開きます）</span></a></li>";
+      }).join("") + "</ul>";
+      note.textContent = st.note || "";
+      return;
+    }
     v.innerHTML = (tag ? '<span class="state-tag">' + STATE[st.state] + "</span>" : "") + '<span class="topic-value-main">' + st.value + "</span>" +
       (st.extra ? '<span class="topic-value-extra">' + esc(st.extra) + "</span>" : "") +
       (st.more ? '<a class="topic-value-link" href="' + esc(st.more.href) + '" target="_blank" rel="noopener noreferrer">' + esc(st.more.text) + EXT +
@@ -731,6 +752,11 @@
         }
         var base = t.link(a);
         setLink(li, base);
+        if (t.pages) {
+          // 数値を出さないサイトでも、見られるページが分かれているときは、数値の欄に入り口を並べる
+          setStat(li, { pages: t.pages(a), site: t.site, area: aname(a), note: t.none });
+          return;
+        }
         if (!t.resolve) {
           setStat(li, null, t.none || "数値はリンク先で確認してください。");
           return;

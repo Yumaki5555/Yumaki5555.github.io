@@ -279,3 +279,16 @@
 }
 .topic-value-link:hover { color: var(--blue-dark); }
 .topic-value-link .ico { width: 15px; height: 15px; }
+/* 数値を出さないサイトの入り口（例：自治体カルテの「財政」「年齢構成比」など）を2列で並べる */
+.topic-value.has-pages { padding: 8px; }
+.topic-pages {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+  width: 100%; margin: 0; padding: 0; list-style: none;
+}
+.topic-pages a {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px; height: 100%;
+  padding: 7px 10px; border: 1px solid var(--blue-line); border-radius: 8px; background: #fff;
+  color: var(--blue); font-size: .93rem; font-weight: 700; line-height: 1.4; text-decoration: none;
+}
+.topic-pages a:hover { border-color: var(--blue); color: var(--blue-dark); text-decoration: underline; text-underline-offset: 3px; }
+.topic-pages .ico { flex: none; width: 15px; height: 15px; }

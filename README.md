@@ -76,7 +76,7 @@
 | モスク | 都道府県 `mosque-map/pref-<ローマ字>.html`、市区町村 `area.html?pref=都道府県名&city=市区町村名` | ○ | `mosque_locations.csv` の「種類」ごとの数 |
 | 民泊・旅館業 | `minpaku-map/?pref=都道府県名&city=市区町村名#map-sec` | ○（15都道府県のみ） | ページに入っている市区町村ごとの件数 |
 | 多文化共生予算 | `tabunka-yosan/#/m/<6けた>`（都道府県も6けた） | ○ | `data/dist/summary.json` |
-| 自治体カルテ | `zititai-karte.com/m/<6けた>`、`/pref/<6けた>` | ○ | （ほかの方のサイトなので数値は出さない） |
+| 自治体カルテ | `zititai-karte.com/m/<6けた>`、`/pref/<6けた>`（財政）、そのあとに `/zinko`（年齢構成比）・`/syussyo?fig=births&nat=foreign`（出生数の図を外国人で開く）・`/gaikoku`（外国人住民）。年は省くと最新年度へ転送 | ○ | （ほかの方のサイトなので数値は出さず、4つの入り口を並べる） |
 | MOU・協定 | `mou-map/#/pref/<2けた>`、市区町村は `#/city/<6けた>` | △ 政令指定都市20市のみ（それ以外は「未調査」として都道府県のページ） | `data/build/summary.json`（MOUのみ。有効確認を大きく、有効性未確認・終了確認を必ず別に表示） |
 | パブコメ | `pubcome/pref/?pref=都道府県名`、`pubcome/city/?pref=…&city=…` | △ 105市区のみ（それ以外は都道府県のページ） | ページに入っている募集中の案件・`counts.json` |
 | 署名 | `shomei/?pref=<東京・大阪などの短い名前>#results`（0件の県は「0件です」と表示される） | △ 都道府県のみ | ページに入っている署名の地域 |
