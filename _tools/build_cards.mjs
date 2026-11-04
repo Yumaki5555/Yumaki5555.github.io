@@ -29,10 +29,11 @@ const navFile = path.join(root, "shared", "site-nav.js");
 const nav = fs.readFileSync(navFile, "utf8");
 const navRe = /(\/\* sites:start[^*]*\*\/\n)[\s\S]*?(\n\s*\/\* sites:end \*\/)/;
 if (!navRe.test(nav)) throw new Error("shared/site-nav.js に一覧の書きこみ場所がありません");
-// 「声を届ける」はメニューに常に出ているので、「ほかのサイト」の一覧には入れません
-const navList = ctx.window.SITES.filter((s) => s.id !== "todokeru");
+// 「声を届ける」は一覧でも「声を届ける・参加する」の先頭に出します。名前と行き先だけメニュー用にします（入口のカードは sites.js のまま）
+const NAV_TODOKERU = { name: "声を届ける。", url: "https://yumaki5555.github.io/todokeru/#/" };
+const navList = [...ctx.window.SITES].sort((a, b) => (b.id === "todokeru") - (a.id === "todokeru"));
 const navSites = navList.map((s) => {
-  const row = { id: s.id, name: s.name, url: s.url, category: s.category };
+  const row = { id: s.id, name: s.name, url: s.url, category: s.category, ...(s.id === "todokeru" ? NAV_TODOKERU : {}) };
   if (s.operator || !s.url.startsWith("https://yumaki5555.github.io/")) row.other = true;
   return "    " + JSON.stringify(row);
 }).join(",\n");

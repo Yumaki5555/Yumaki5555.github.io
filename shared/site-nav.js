@@ -20,6 +20,7 @@
 
   /* sites:start（_tools/build_cards.mjs が書きこみます） */
   var SITES = [
+    {"id":"todokeru","name":"声を届ける。","url":"https://yumaki5555.github.io/todokeru/#/","category":"participate"},
     {"id":"policy-log","name":"政策ログJP","url":"https://policy-log.jp/","category":"research","other":true},
     {"id":"mou-map","name":"日本と世界のMOU・協定マップ","url":"https://yumaki5555.github.io/mou-map/","category":"research"},
     {"id":"zititai-karte","name":"自治体カルテ","url":"https://www.zititai-karte.com/","category":"research","other":true},
@@ -61,7 +62,6 @@
   function currentSiteName() {
     var folder = firstFolder(location.pathname);
     if (!folder || folder === "index.html") return PORTAL.name;
-    if (folder === firstFolder(TODOKERU.path)) return TODOKERU.name;
     for (var i = 0; i < SITES.length; i++) {
       var u = SITES[i].url;
       if (u.indexOf(ORIGIN + "/") === 0 && firstFolder(u.slice(ORIGIN.length)) === folder) return SITES[i].name;
@@ -180,6 +180,10 @@
       }
       btn.addEventListener("click", function () {
         setOpen(panel.hidden);
+      });
+      // 同じサイトの中の移動（声を届けるの中で「声を届ける。」を押すなど）はページが読み直されないので、押したら閉じる
+      panel.addEventListener("click", function (e) {
+        if (e.target.closest("a")) setOpen(false);
       });
       // キーボードで部品の外へ移ったら閉じる
       root.addEventListener("focusout", function (e) {
