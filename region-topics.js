@@ -1,4 +1,4 @@
-// 「地域から調べる」のカード（地域の8分野＋全国共通の2サイト）
+// 「地域から調べる」のカード（地域の9分野＋全国共通の2サイト）
 // それぞれのカードは、選んだ地域を専門サイトへ引き継ぐリンクと、取れるときだけ代表的な数値を出します。
 // 全国共通の2サイト（政策ログJP・世界の感染症と日本の水際対策）は地域を引き継がず、数値も出しません（「全国共通」と表示）。
 //
@@ -185,7 +185,7 @@
     }
   };
 
-  // ---------- 8つのカード ----------
+  // ---------- 9つのカード ----------
   // icon   … アイコンの形（brand-icons.js の名前。リンク先のファビコンと同じ形）
   // q      … 地域名を入れた1行の問いかけ（n＝選んだ地域の名前、a＝選んだ地域）
   // see    … そのサイトで見られることを短く（文字列、または n・a を受け取る関数）
@@ -195,10 +195,13 @@
   //            sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし） }
   // guide(a) … 「まず3分で知る」「図で知る」の補助リンク { label, href, site }（実際にある解説だけ。なくてもよい）
   // operator … ほかの方のサイトのとき、sites.js の id（運営者の名前と X を、分野名の下に出す）
+  // plain  … 数を出さないカード（数値の段を作らず、要点をその分だけ上に詰める。ボタンの高さは隣とそろう）
+  // btn    … ボタンの文言（なければ「詳しく調べる」）
+  // noArea() … 地域を選ぶ前の行き先（なければ「全国のページ」）
   var GROUPS = [
     { id: "now", mark: "A", title: "地域の現状を知る" },
     { id: "gov", mark: "B", title: "行政の動きを調べる" },
-    { id: "voice", mark: "C", title: "声を届ける・参加する", lead: "パブコメは国や自治体の案に意見を出すしくみ、署名は活動の趣旨に賛同する意思を示すものです。" },
+    { id: "voice", mark: "C", title: "声を届ける・参加する", lead: "自治体への問い合わせ、パブコメ、署名など、声を届ける方法を探せます。" },
     // 地域では分けられない、国全体・世界の情報（地域を選んでも中身は変わらない）
     { id: "nation", mark: "D", title: "全国共通の情報も調べる", lead: "国全体・世界の情報です。どの地域を選んでも、同じページが開きます。" }
   ];
@@ -511,6 +514,22 @@
       }
     },
     {
+      // 地域は「声を届ける。」の窓口ページへ、戻り先は from で渡す（戻ると ?area= で同じ地域が開く）。受け取りは 届ける/src/lib/fromSite.ts
+      id: "todokeru", group: "voice", icon: "todokeru", title: "声を届ける。", site: "声を届ける。", plain: true,
+      top: GH + "todokeru/",
+      btn: "問い合わせ先・伝え方を見る",
+      q: function (n) { return (n || "自治体") + "に質問や意見を伝えたい？"; },
+      see: "自治体への問い合わせ・意見の伝え方",
+      url: function (code, back) {
+        return this.top + "#/contacts?tab=area" + (code ? "&code=" + code : "") + "&from=" + encodeURIComponent(location.origin + "/" + back);
+      },
+      link: function (a) {
+        var code = a.muni ? a.muni.code : a.pref;
+        return { href: this.url(code, "?area=" + code), scope: "exact", text: aname(a) + "の問い合わせ先のページが開きます" };
+      },
+      noArea: function () { return { href: this.url("", "#area"), scope: "top", text: "地域を選ぶ画面が開きます" }; }
+    },
+    {
       id: "pubcome", group: "voice", icon: "pubcome", title: "パブリックコメント", site: "パブコメ掲示板",
       top: GH + "pubcome/",
       q: function (n, a) {
@@ -653,7 +672,7 @@
     var n = a ? aname(a) : "";
     var see = typeof t.see === "function" ? t.see(n, a) : t.see;
     return (
-      '<li class="topic" id="topic-' + t.id + '">' +
+      '<li class="topic' + (t.plain ? " topic-plain" : "") + '" id="topic-' + t.id + '">' +
         '<div class="topic-head">' +
           (window.brandIcon ? window.brandIcon(t.icon) : "") +
           '<div><h4 class="topic-title">' + esc(t.title) + "</h4>" +
@@ -661,14 +680,14 @@
           (t.site !== t.title ? '<p class="topic-site">' + esc(t.site) + "</p>" : "") + creditHTML(t) + "</div>" +
         "</div>" +
         '<p class="topic-q">' + esc(t.q(n, a)) + "</p>" +
-        '<div class="topic-value" aria-live="polite"></div>' +
+        (t.plain ? "" : '<div class="topic-value" aria-live="polite"></div>') +
         '<ul class="topic-points">' +
           '<li class="topic-see">' + esc(see) + "</li>" +
           '<li class="topic-scope"></li>' +
           '<li class="topic-note"></li>' +
         "</ul>" +
         '<div class="topic-foot">' + guideHTML(t, a) +
-          '<a class="btn-topic" href="' + esc(t.top) + '" target="_blank" rel="noopener noreferrer">詳しく調べる' + EXT +
+          '<a class="btn-topic" href="' + esc(t.top) + '" target="_blank" rel="noopener noreferrer">' + esc(t.btn || "詳しく調べる") + EXT +
           '<span class="sr-only">（' + esc(t.site) + "が新しいタブで開きます）</span></a></div>" +
       "</li>"
     );
@@ -756,12 +775,13 @@
         }
         if (!a) {
           // 地域を選ぶまでは、データを読まずに各サイトのトップを案内する（ページを軽くするため）
-          setLink(li, { href: t.top, scope: "all", text: "全国のページが開きます" });
-          setStat(li, null, "地域を選ぶと、その地域の数が出ます");
+          setLink(li, t.noArea ? t.noArea() : { href: t.top, scope: "all", text: "全国のページが開きます" });
+          if (!t.plain) setStat(li, null, "地域を選ぶと、その地域の数が出ます");
           return;
         }
         var base = t.link(a);
         setLink(li, base);
+        if (t.plain) return;
         if (t.pages) {
           // 数値を出さないサイトでも、見られるページが分かれているときは、数値の欄に入り口を並べる
           setStat(li, { pages: t.pages(a), site: t.site, area: aname(a), note: t.none });

@@ -244,6 +244,8 @@
 .topic-group-lead { margin: -4px 0 12px; color: var(--muted); font-size: .97rem; line-height: 1.6; }
 
 .topic-foot { align-self: end; }
+/* 数を出さないカード：数値の段の分も要点が使う（穴をあけず、ボタンは隣とそろえる） */
+.topic-plain .topic-points { grid-row: span 2; }
 .btn-topic {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; min-height: 48px; padding: 6px 16px;
