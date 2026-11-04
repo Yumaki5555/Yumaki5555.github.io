@@ -144,6 +144,16 @@ window.SITES = [
     pair: { id: "zairyu", label: "詳しく調べる" }
   },
   {
+    id: "todokeru",
+    category: "participate",
+    name: "声を届ける",
+    url: "https://yumaki5555.github.io/todokeru/",
+    icon: "todokeru",
+    summary: "問い合わせ・意見の伝え方と、各種マニュアル",
+    points: ["国・自治体の窓口を探す", "電話の台本・メール・手紙の文面を作る", "パブコメ・請願・署名・情報公開請求の手順"],
+    checkUpdate: true
+  },
+  {
     id: "pubcome",
     category: "participate",
     name: "パブコメ掲示板",

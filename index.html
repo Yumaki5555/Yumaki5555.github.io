@@ -31,8 +31,8 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
 <!-- ?v= の日付は、css・js を直したら書きかえる（古いファイルが残らないように） -->
 <link rel="stylesheet" href="style.css?v=20261029i">
 <link rel="stylesheet" href="area.css?v=20261101c">
-<script src="sites.js?v=20261029j" defer></script>
-<script src="brand-icons.js?v=20261029b" defer></script>
+<script src="sites.js?v=20261104a" defer></script>
+<script src="brand-icons.js?v=20261104a" defer></script>
 <script src="site-cards.js?v=20261029g" defer></script>
 <script src="main.js?v=20261029d" defer></script>
 <script src="data/japan-map.js?v=20261028g" defer></script>
@@ -41,6 +41,8 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
 </head>
 <body>
 <a class="skip" href="#main">本文へ移動</a>
+<nihon-site-nav></nihon-site-nav>
+<script src="https://yumaki5555.github.io/shared/site-nav.js" data-place="manual" async></script>
 
 <header class="site-header">
   <div class="header-inner wrap">
@@ -210,7 +212,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
   <div class="themes-head" id="themes">
     <div class="wrap">
       <h2>テーマから探す</h2>
-      <p>12のサイトを、目的別に紹介しています。カードやボタンを押すと、それぞれのサイトが新しいタブで開きます。</p>
+      <p>13のサイトを、目的別に紹介しています。カードやボタンを押すと、それぞれのサイトが新しいタブで開きます。</p>
       <nav class="theme-jump" aria-label="テーマの分類">
         <a href="#research" class="cat-research">調べる・比較する<span class="tj-n"><span data-count="research">8</span>サイト</span></a>
         <a href="#learn" class="cat-learn">わかりやすく学ぶ<span class="tj-n"><span data-count="learn">2</span>サイト</span></a>
@@ -267,6 +269,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
         </div>
       </div>
       <div class="cards" data-category="participate"><!-- cards:start（_tools/build_cards.mjs が書きこむ。手で直さない） -->
+<article class="card cat-participate" id="site-todokeru"><div class="card-head"><span class="brand-ico" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><path fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" d="M8 9.5h16a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H15l-4.5 3.5V20.5H8a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z"/><path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" d="M11.5 15h9"/></svg></span><h3 class="card-title">声を届ける</h3></div><p class="card-summary">問い合わせ・意見の伝え方と、各種マニュアル</p><ul class="card-points"><li>国・自治体の窓口を探す</li><li>電話の台本・メール・手紙の文面を作る</li><li>パブコメ・請願・署名・情報公開請求の手順</li></ul><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/todokeru/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/todokeru/" target="_blank" rel="noopener noreferrer" aria-label="声を届けるのサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
 <article class="card cat-participate" id="site-pubcome"><div class="card-head"><span class="brand-ico" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><path fill="#fff" d="M8.5 5.5h15a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H16l-6 5v-5H8.5a4 4 0 0 1-4-4v-9a4 4 0 0 1 4-4z"/><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M10 11h12M10 17h7"/></svg></span><h3 class="card-title">パブコメ掲示板</h3></div><p class="card-summary">国や自治体の案に意見を出す（パブコメ）</p><ul class="card-points"><li>国・都道府県・市区町村の募集中の案件を探す</li><li>キーワード・担当省庁で検索</li><li>締切が近い順に並べ、公式の提出先へ</li></ul><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/pubcome/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/pubcome/" target="_blank" rel="noopener noreferrer" aria-label="パブコメ掲示板のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
 <article class="card cat-participate" id="site-shomei"><div class="card-head"><span class="brand-ico" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><rect x="5.5" y="4.5" width="15.5" height="22.5" rx="1.8" fill="#fff"/><g transform="translate(15.5 23.5) rotate(45) scale(.5)"><path d="M0 0L-5.5-10V-31A5.5 5.5 0 0 1 5.5-31V-10Z" fill="currentColor" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M0 0L-5.5-10V-31A5.5 5.5 0 0 1 5.5-31V-10Z" fill="#fff"/></g></svg></span><h3 class="card-title">署名掲示板</h3></div><p class="card-summary">活動の趣旨を読み、賛同する署名を探す</p><ul class="card-points"><li>change.org と Voice の署名を掲載</li><li>キーワード・都道府県で検索</li><li>署名が多い順・伸びている順・終了日が近い順</li></ul><div class="card-extra"><p class="card-updated" data-update-url="https://yumaki5555.github.io/shomei/" hidden></p></div><div class="card-foot"><a class="btn-site" href="https://yumaki5555.github.io/shomei/" target="_blank" rel="noopener noreferrer" aria-label="署名掲示板のサイトを見る（新しいタブで開きます）">サイトを見る<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1H10"/></svg></a></div></article>
 <!-- cards:end --></div>
@@ -276,7 +279,7 @@ setTimeout(function () { if (!window.ENTRY_READY) document.documentElement.class
   </div>
 
   <noscript>
-    <div class="wrap"><p class="noscript">地図と地域の選択を使うには、ブラウザの JavaScript を有効にしてください。12のサイトは、上の「テーマから探す」から開けます。</p></div>
+    <div class="wrap"><p class="noscript">地図と地域の選択を使うには、ブラウザの JavaScript を有効にしてください。13のサイトは、上の「テーマから探す」から開けます。</p></div>
   </noscript>
 
   <section class="about" id="about" aria-labelledby="h-about">

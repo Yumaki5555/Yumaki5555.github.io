@@ -23,3 +23,18 @@ for (const cat of ["research", "learn", "participate"]) {
 }
 fs.writeFileSync(file, html);
 console.log("index.html に", ctx.window.SITES.length, "サイトのカードを書きこみました");
+
+// 全サイト共通メニュー（shared/site-nav.js）の「ほかのサイト」の一覧も、同じ sites.js から作ります
+const navFile = path.join(root, "shared", "site-nav.js");
+const nav = fs.readFileSync(navFile, "utf8");
+const navRe = /(\/\* sites:start[^*]*\*\/\n)[\s\S]*?(\n\s*\/\* sites:end \*\/)/;
+if (!navRe.test(nav)) throw new Error("shared/site-nav.js に一覧の書きこみ場所がありません");
+// 「声を届ける」はメニューに常に出ているので、「ほかのサイト」の一覧には入れません
+const navList = ctx.window.SITES.filter((s) => s.id !== "todokeru");
+const navSites = navList.map((s) => {
+  const row = { id: s.id, name: s.name, url: s.url, category: s.category };
+  if (s.operator || !s.url.startsWith("https://yumaki5555.github.io/")) row.other = true;
+  return "    " + JSON.stringify(row);
+}).join(",\n");
+fs.writeFileSync(navFile, nav.replace(navRe, (_, a, b) => a + "  var SITES = [\n" + navSites + "\n  ];" + b));
+console.log("shared/site-nav.js に", navList.length, "サイトの一覧を書きこみました");

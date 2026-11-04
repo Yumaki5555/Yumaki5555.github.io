@@ -9,6 +9,7 @@
 //   minpaku … 民泊・旅館業マップ（ベッド）          mosque … 日本のモスク情報（ドームと三日月）
 //   kansensho … 世界の感染症と日本の水際対策（心拍の線）
 //   pubcome … パブコメ掲示板（吹き出し）            shomei … 署名掲示板（署名用紙とペン）
+//   todokeru … 声を届ける（線の吹き出し。サイトのファビコンと同じ形）
 //   mou … 日本と世界のMOU・協定マップ（地球。2026年10月29日夜にサイトのファビコンが「M」から地球に変わったのに合わせた）
 //   people … 図で見る、日本に住む外国人（ファビコンがないため、内容に合わせた形）
 //   日本のモスクを知る もファビコンがないため、日本のモスク情報と同じ mosque を使う
@@ -37,6 +38,9 @@
       '<path d="M13.8 28v-3.5a2.2 2.2 0 0 1 4.4 0V28z" fill="currentColor"/>',
     kansensho:
       '<path d="M5 17h5l3-7 5 13 3-6h6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    todokeru:
+      '<path fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" d="M8 9.5h16a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H15l-4.5 3.5V20.5H8a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z"/>' +
+      '<path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" d="M11.5 15h9"/>',
     pubcome:
       '<path fill="#fff" d="M8.5 5.5h15a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H16l-6 5v-5H8.5a4 4 0 0 1-4-4v-9a4 4 0 0 1 4-4z"/>' +
       '<path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M10 11h12M10 17h7"/>',
