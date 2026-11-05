@@ -8,6 +8,7 @@
 //   zairyu … 数でみる在留外国人（3本の棒グラフ）   tabunka … 全国 多文化共生予算マップ（円グラフ）
 //   minpaku … 民泊・旅館業マップ（ベッド）          mosque … 日本のモスク情報（ドームと三日月）
 //   kansensho … 世界の感染症と日本の水際対策（心拍の線）
+//   school … 日本語学校・留学生 全国マップ（窓と入口のある校舎）
 //   pubcome … パブコメ掲示板（吹き出し）            shomei … 署名掲示板（署名用紙とペン）
 //   todokeru … 声を届ける（線の吹き出し。サイトのファビコンと同じ形）
 //   mou … 日本と世界のMOU・協定マップ（地球。2026年10月29日夜にサイトのファビコンが「M」から地球に変わったのに合わせた）
@@ -36,6 +37,9 @@
       '<path d="M16 9C12.5 13 6 14 6 20h20c0-6-6.5-7-10-11z" fill="#fff"/>' +
       '<path d="M4.5 21h23v7h-23z" fill="#fff"/>' +
       '<path d="M13.8 28v-3.5a2.2 2.2 0 0 1 4.4 0V28z" fill="currentColor"/>',
+    school:
+      '<path d="M5 7h22v20H5z" fill="#fff"/>' +
+      '<g fill="currentColor"><rect x="7.5" y="10" width="4" height="4"/><rect x="14" y="10" width="4" height="4"/><rect x="20.5" y="10" width="4" height="4"/><rect x="7.5" y="17" width="4" height="4"/><rect x="20.5" y="17" width="4" height="4"/><rect x="13.5" y="18.5" width="5" height="8.5"/></g>',
     kansensho:
       '<path d="M5 17h5l3-7 5 13 3-6h6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
     todokeru:

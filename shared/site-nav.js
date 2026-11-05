@@ -26,6 +26,7 @@
     {"id":"zititai-karte","name":"自治体カルテ","url":"https://www.zititai-karte.com/","category":"research","other":true},
     {"id":"tabunka-yosan","name":"全国 多文化共生予算マップ","url":"https://yumaki5555.github.io/tabunka-yosan/","category":"research"},
     {"id":"zairyu","name":"数でみる在留外国人","url":"https://yumaki5555.github.io/zairyu/index.html","category":"research"},
+    {"id":"nihongo-school-map","name":"日本語学校・留学生 全国マップ","url":"https://yumaki5555.github.io/nihongo-school-map/","category":"research"},
     {"id":"minpaku-map","name":"民泊・旅館業マップ","url":"https://yumaki5555.github.io/minpaku-map/","category":"research"},
     {"id":"mosque-map","name":"日本のモスク情報","url":"https://yumaki5555.github.io/mosque-map/","category":"research"},
     {"id":"kansensho","name":"世界の感染症と日本の水際対策","url":"https://yumaki5555.github.io/kansensho/","category":"research"},

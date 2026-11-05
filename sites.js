@@ -82,6 +82,17 @@ window.SITES = [
     pair: { id: "zairyu-guide", label: "図でやさしく知る", nameless: true }
   },
   {
+    id: "nihongo-school-map",
+    category: "research",
+    name: "日本語学校・留学生 全国マップ",
+    url: "https://yumaki5555.github.io/nihongo-school-map/",
+    icon: "school",
+    summary: "日本語学校の数と場所を地図で調べる",
+    points: ["都道府県・市区町村から学校を探す", "地域ごとの学校の数を見る", "国の資料と各校サイトの出典を確認"],
+    guide: { label: "まず3分で知る", site: "3分でわかる 日本語学校と留学生", url: "https://yumaki5555.github.io/nihongo-school-map/guide.html" },
+    checkUpdate: true
+  },
+  {
     id: "minpaku-map",
     category: "research",
     name: "民泊・旅館業マップ",

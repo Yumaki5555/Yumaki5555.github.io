@@ -1,4 +1,4 @@
-// 「地域から調べる」のカード（地域の9分野＋全国共通の2サイト）
+// 「地域から調べる」のカード（地域の10分野＋全国共通の2サイト）
 // それぞれのカードは、選んだ地域を専門サイトへ引き継ぐリンクと、取れるときだけ代表的な数値を出します。
 // 全国共通の2サイト（政策ログJP・世界の感染症と日本の水際対策）は地域を引き継がず、数値も出しません（「全国共通」と表示）。
 //
@@ -24,6 +24,7 @@
     mosque: "https://mosque-info-explorer.sunlitmole256.chatgpt.site/",               // 日本のモスクを知る（region.html?pref=県名 で県の要約）
     tabunka: GH + "tabunka-yosan/#/guide",                                             // 3分でわかる 多文化共生予算
     mou: GH + "mou-map/#/guide",                                                       // 3分でわかるMOU
+    school: GH + "nihongo-school-map/guide.html",                                      // 3分でわかる 日本語学校と留学生
     kansensho: GH + "kansensho/#sanpun-tb"                                             // まず3分でわかる（結核編。HIV/エイズ編へも切りかえられる）
   };
   var TIMEOUT = 15000; // これより長くかかったら「取得失敗」にする（ミリ秒）
@@ -135,6 +136,7 @@
   var load = {
     minpaku: function () { return once("minpaku", function () { return getText(GH + "minpaku-map/").then(function (h) { return embedded(h, "site-data"); }); }); },
     tabunka: function () { return once("tabunka", function () { return getJSON(GH + "tabunka-yosan/data/dist/summary.json"); }); },
+    school: function () { return once("school", function () { return getJSON(GH + "nihongo-school-map/data/regions.json"); }); },
     mou: function () { return once("mou", function () { return getJSON(GH + "mou-map/data/build/summary.json"); }); },
     pubPref: function () { return once("pubPref", function () { return getText(GH + "pubcome/pref/").then(function (h) { return embedded(h, "data"); }); }); },
     pubCity: function () { return once("pubCity", function () { return getText(GH + "pubcome/city/").then(function (h) { return embedded(h, "data"); }); }); },
@@ -185,7 +187,7 @@
     }
   };
 
-  // ---------- 9つのカード ----------
+  // ---------- 10のカード ----------
   // icon   … アイコンの形（brand-icons.js の名前。リンク先のファビコンと同じ形）
   // q      … 地域名を入れた1行の問いかけ（n＝選んだ地域の名前、a＝選んだ地域）
   // see    … そのサイトで見られることを短く（文字列、または n・a を受け取る関数）
@@ -257,6 +259,37 @@
               note: (w ? w[1] + "年" + (+w[2]) + "月末時点。" : "") + "出典：出入国在留管理庁「在留外国人統計」"
             }
           };
+        });
+      }
+    },
+    {
+      id: "school", group: "now", icon: "school", title: "日本語学校", site: "日本語学校・留学生 全国マップ",
+      top: GH + "nihongo-school-map/",
+      q: function (n) { return n ? n + "に日本語学校はいくつある？" : "日本に日本語学校はいくつある？"; },
+      see: "学校の場所と数を地図で見る",
+      guide: function () { return { label: "まず3分で知る", site: "3分でわかる 日本語学校と留学生", href: GUIDE.school }; },
+      link: function (a) {
+        var base = GH + "nihongo-school-map/?pref=" + a.pref;
+        // マップの政令指定都市は区ごとなので、市全体を選んだときは都道府県のページを開く
+        if (a.muni && a.muni.seirei) return { href: base, scope: "wider", text: pname(a) + "のページが開きます" };
+        if (a.muni) return { href: base + "&city=" + a.muni.code.slice(0, 5), scope: "exact", text: a.muni.name + "を選んだ状態で開きます" };
+        return { href: base, scope: "exact", text: pname(a) + "のページが開きます" };
+      },
+      resolve: function (a) {
+        return load.school().then(function (R) {
+          var p = R.prefs[a.pref];
+          if (!p) return {};
+          var when = "（" + jdate(R.generated) + "更新）";
+          if (!a.muni) return { stat: { value: num(p.n) + "<small>校</small>", note: "国の資料をもとに数えています" + when + "。" } };
+          // 住所が分からない学校は市区町村を決められないので、市区町村の数は住所を確認できた学校だけ
+          var n = 0;
+          (p.cities || []).forEach(function (c) {
+            if (a.muni.seirei ? c.name.indexOf(a.muni.name) === 0 : c.code === a.muni.code.slice(0, 5)) n += c.n;
+          });
+          var date = jdate(R.generated) + "更新。";
+          if (!n && p.no_city) return { stat: { state: "unconfirmed", value: "見つかっていません", note: date } };
+          if (!n) return { stat: { state: "zero", value: "0<small>校</small>", note: date } };
+          return { stat: { value: num(n) + "<small>校</small>", note: date } };
         });
       }
     },
