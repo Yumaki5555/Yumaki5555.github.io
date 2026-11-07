@@ -115,23 +115,28 @@
     var start = m.index + m[0].length;
     return JSON.parse(html.slice(start, html.indexOf("</script>", start)));
   }
-  function parseCSV(text) {
-    var rows = [], row = [], f = "", q = false;
-    for (var i = 0; i < text.length; i++) {
-      var ch = text[i];
-      if (q) {
-        if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; }
-        else f += ch;
-      } else if (ch === '"') q = true;
-      else if (ch === ",") { row.push(f); f = ""; }
-      else if (ch === "\n" || ch === "\r") {
-        if (ch === "\r" && text[i + 1] === "\n") i++;
-        row.push(f); rows.push(row); row = []; f = "";
-      } else f += ch;
+  // ページの中のスクリプトに書かれた配列（例：const PLACES = [ … ];）を取り出す。
+  // 文字列の中の括弧は数えないようにして、配列の終わりを見つけてから JSON として読む
+  function jsArray(html, marker) {
+    var i = html.indexOf(marker);
+    if (i < 0) throw new Error("no data " + marker);
+    var start = html.indexOf("[", i + marker.length), depth = 0, str = false;
+    for (var k = start; k < html.length; k++) {
+      var ch = html[k];
+      if (str) {
+        if (ch === "\\") k++;
+        else if (ch === '"') str = false;
+      } else if (ch === '"') str = true;
+      else if (ch === "[" || ch === "{") depth++;
+      else if (ch === "]" || ch === "}") {
+        if (--depth === 0) return JSON.parse(html.slice(start, k + 1));
+      }
     }
-    if (f || row.length) { row.push(f); rows.push(row); }
-    return rows;
+    throw new Error("broken data " + marker);
   }
+  // 日本のモスク情報の施設の分け方（area.html の CLASS_JA と同じ名前。1か所を1つの種類に数える）
+  var MOSQUE_CLASS = { mosque: "モスク・礼拝所", plan: "計画・建設中", unknown: "状況確認中", closed: "閉鎖・移転",
+    school: "学校", cemetery: "墓地", other: "寄付・計画の情報だけの場所" };
 
   var load = {
     minpaku: function () { return once("minpaku", function () { return getText(GH + "minpaku-map/").then(function (h) { return embedded(h, "site-data"); }); }); },
@@ -142,21 +147,20 @@
     pubCity: function () { return once("pubCity", function () { return getText(GH + "pubcome/city/").then(function (h) { return embedded(h, "data"); }); }); },
     pubCounts: function () { return once("pubCounts", function () { return getJSON(GH + "pubcome/counts.json"); }); },
     shomei: function () { return once("shomei", function () { return getText(GH + "shomei/").then(function (h) { return embedded(h, "data"); }); }); },
+    // 日本語学校・留学生 全国マップの学校一覧（市区町村ごとに種類別の数を数えるときだけ読む）
+    schools: function () { return once("schools", function () { return getJSON(GH + "nihongo-school-map/data/schools.json"); }); },
+    // 日本のモスク情報：地域別のページ（area.html）に入っている施設の一覧 PLACES から、種類（cls）・都道府県・市区町村だけを使う。
+    // 2026年11月6日に施設の表（mosque_locations.csv）の公開が終わったため、公開中のページのデータを読む形に変えた（2026年11月7日）
     mosque: function () {
       return once("mosque", function () {
-        return get(GH + "mosque-map/mosque_locations.csv").then(ok).then(function (r) {
+        return get(GH + "mosque-map/area.html").then(ok).then(function (r) {
           var lm = r.headers.get("Last-Modified");
-          return r.text().then(function (text) {
-            var rows = parseCSV(text.replace(/^﻿/, ""));
-            var head = rows.shift();
-            var ix = { kind: head.indexOf("種類"), pref: head.indexOf("都道府県"), city: head.indexOf("市区町村") };
-            if (ix.kind < 0 || ix.pref < 0 || ix.city < 0) throw new Error("csv columns");
+          return r.text().then(function (html) {
+            var places = jsArray(html, "const PLACES = ");
             var d = lm ? new Date(lm) : null;
             return {
               updated: d && !isNaN(d) ? new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10) : "",
-              rows: rows.filter(function (x) { return x.length > 2; }).map(function (x) {
-                return { kind: x[ix.kind], pref: x[ix.pref], city: x[ix.city] };
-              })
+              rows: places.map(function (p) { return { kind: MOSQUE_CLASS[p.cls] || "", pref: p.prefecture, city: p.city }; })
             };
           });
         });
@@ -265,7 +269,7 @@
     {
       id: "school", group: "now", icon: "school", title: "日本語学校", site: "日本語学校・留学生 全国マップ",
       top: GH + "nihongo-school-map/",
-      q: function (n) { return n ? n + "に日本語学校はいくつある？" : "日本に日本語学校はいくつある？"; },
+      q: function (n) { return (n || "日本") + "に日本語学校や大学・専門学校はいくつある？"; },
       see: "学校の場所と数を地図で見る",
       guide: function () { return { label: "まず3分で知る", site: "3分でわかる 日本語学校と留学生", href: GUIDE.school }; },
       link: function (a) {
@@ -275,21 +279,39 @@
         if (a.muni) return { href: base + "&city=" + a.muni.code.slice(0, 5), scope: "exact", text: a.muni.name + "を選んだ状態で開きます" };
         return { href: base, scope: "exact", text: pname(a) + "のページが開きます" };
       },
+      // 数は「日本語学校」「大学等（大学・短大・高専。マップの分け方と同じ）」「専門学校」の3つ（2026年11月7日 ユーザー指定）
       resolve: function (a) {
+        function rows(c) {
+          return [
+            { label: "日本語学校", n: c.jp || 0 },
+            { label: "大学等", n: (c.univ || 0) + (c.jc || 0) + (c.kosen || 0), sub: "大学 " + num(c.univ || 0) + "・短大 " + num(c.jc || 0) + "・高専 " + num(c.kosen || 0) },
+            { label: "専門学校", n: c.senmon || 0 }
+          ];
+        }
         return load.school().then(function (R) {
           var p = R.prefs[a.pref];
           if (!p) return {};
-          var when = "（" + jdate(R.generated) + "更新）";
-          if (!a.muni) return { stat: { value: num(p.n) + "<small>校</small>", note: "国の資料をもとに数えています" + when + "。" } };
-          // 住所が分からない学校は市区町村を決められないので、市区町村の数は住所を確認できた学校だけ
-          var n = 0;
-          (p.cities || []).forEach(function (c) {
-            if (a.muni.seirei ? c.name.indexOf(a.muni.name) === 0 : c.code === a.muni.code.slice(0, 5)) n += c.n;
+          var date = jdate(R.generated) + "更新";
+          if (!a.muni) {
+            var h = p.higher || {};
+            return { stat: { rows: rows({ jp: p.n, univ: h.univ, jc: h.jc, kosen: h.kosen, senmon: p.senmon }), note: "国の資料をもとに数えています（" + date + "）。" } };
+          }
+          // 市区町村は学校一覧から数える。住所が分からない学校は市区町村を決められないので数に入らない
+          return load.schools().then(function (D) {
+            var c = {}, unknown = 0, total = 0;
+            (D.schools || []).forEach(function (s) {
+              if (s.p !== a.pref) return;
+              if (!s.cc) { unknown++; return; }
+              if (a.muni.seirei ? String(s.c || "").indexOf(a.muni.name) === 0 : s.cc === a.muni.code.slice(0, 5)) {
+                c[s.t] = (c[s.t] || 0) + 1;
+                total++;
+              }
+            });
+            var note = date + "。" + (unknown ? "住所から市区町村が分からない学校（" + pname(a) + "で" + num(unknown) + "校）は数に入っていません。" : "");
+            if (!total && unknown) return { stat: { state: "unconfirmed", value: "見つかっていません", note: note } };
+            if (!total) return { stat: { state: "zero", value: "0<small>校</small>", note: note } };
+            return { stat: { rows: rows(c), note: note } };
           });
-          var date = jdate(R.generated) + "更新。";
-          if (!n && p.no_city) return { stat: { state: "unconfirmed", value: "見つかっていません", note: date } };
-          if (!n) return { stat: { state: "zero", value: "0<small>校</small>", note: date } };
-          return { stat: { value: num(n) + "<small>校</small>", note: date } };
         });
       }
     },
@@ -773,6 +795,16 @@
           (p.sub ? '<span class="nowrap">' + esc(p.sub) + "</span>" : "") + "</span>" + EXT +
           '<span class="sr-only">（' + esc(st.site) + "の" + esc(st.area) + "のページが新しいタブで開きます）</span></a></li>";
       }).join("") + "</ul>";
+      note.textContent = st.note || "";
+      return;
+    }
+    if (st.rows) {
+      // 種類ごとの数を行に分けて並べる（例：日本語学校 258校／大学等 184校／専門学校 336校）
+      v.className += " has-rows";
+      v.innerHTML = '<dl class="topic-rows">' + st.rows.map(function (r) {
+        return '<div class="topic-row"><dt>' + esc(r.label) + '</dt><dd><span class="topic-row-n">' + num(r.n) + "<small>校</small></span>" +
+          (r.sub ? '<span class="topic-row-sub">' + esc(r.sub) + "</span>" : "") + "</dd></div>";
+      }).join("") + "</dl>";
       note.textContent = st.note || "";
       return;
     }

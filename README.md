@@ -73,9 +73,9 @@
 
 | カード | 開くページ | 市区町村 | 数値のもと |
 |---|---|---|---|
-| 日本語学校 | `nihongo-school-map/?pref=<2けた>`、市区町村は `&city=<5けた>` | ○（政令指定都市は市全体がマップにないので都道府県のページ） | `data/regions.json`（都道府県は全校、市区町村は住所を確認できた学校の数） |
+| 日本語学校 | `nihongo-school-map/?pref=<2けた>`、市区町村は `&city=<5けた>` | ○（政令指定都市は市全体がマップにないので都道府県のページ） | 日本語学校・大学等（大学・短大・高専）・専門学校の3つ。都道府県は `data/regions.json`、市区町村は `data/schools.json`（住所を確認できた学校の数） |
 | 在留外国人 | `zairyu/pref-<ローマ字>.html`、`muni-<5けた>.html`、政令市は `city-<市名>.html` | ○ | 開くページに入っている総数・国籍の内わけ（在留外国人統計） |
-| モスク | 都道府県 `mosque-map/pref-<ローマ字>.html`、市区町村 `area.html?pref=都道府県名&city=市区町村名` | ○ | `mosque_locations.csv` の「種類」ごとの数 |
+| モスク | 都道府県 `mosque-map/pref-<ローマ字>.html`、市区町村 `area.html?pref=都道府県名&city=市区町村名` | ○ | `area.html` に入っている施設の一覧（PLACES）の種類（cls）ごとの数（2026-11-06 に mosque_locations.csv の公開が終わったため） |
 | 民泊・旅館業 | `minpaku-map/?pref=都道府県名&city=市区町村名#map-sec` | ○（15都道府県のみ） | ページに入っている市区町村ごとの件数 |
 | 多文化共生予算 | `tabunka-yosan/#/m/<6けた>`（都道府県も6けた） | ○ | `data/dist/summary.json` |
 | 自治体カルテ | `zititai-karte.com/m/<6けた>`、`/pref/<6けた>`（財政）、そのあとに `/zinko`（年齢構成比）・`/syussyo?fig=births&nat=foreign`（出生数の図を外国人で開く）・`/gaikoku`（外国人住民）。年は省くと最新年度へ転送 | ○ | （ほかの方のサイトなので数値は出さず、4つの入り口を並べる） |

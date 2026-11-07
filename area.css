@@ -205,6 +205,16 @@
 .topic-value-sub { flex-basis: 100%; color: var(--text); font-size: .9rem; font-weight: 700; line-height: 1.5; }
 .topic-value-loading, .topic-value-empty { color: var(--muted); font-size: .93rem; line-height: 1.5; }
 .topic-value.is-empty { background: transparent; border: 1px dashed var(--blue-line); }
+/* 種類ごとの数を行で並べる（日本語学校のカード） */
+.topic-rows { flex-basis: 100%; display: grid; grid-template-columns: max-content 1fr; column-gap: 12px; margin: 0; }
+.topic-row { display: contents; }
+.topic-row dt, .topic-row dd { padding: 3px 0; }
+.topic-row + .topic-row dt, .topic-row + .topic-row dd { border-top: 1px solid var(--blue-line); }
+.topic-row dt { align-self: baseline; color: var(--text); font-size: .93rem; font-weight: 700; line-height: 1.6; }
+.topic-row dd { margin: 0; }
+.topic-row-n { color: var(--navy); font-size: 1.2rem; font-weight: 900; line-height: 1.35; }
+.topic-row-n small { font-size: .85rem; font-weight: 700; }
+.topic-row-sub { display: block; color: var(--muted); font-size: .82rem; font-weight: 700; line-height: 1.45; }
 .state-tag {
   display: inline-block; padding: 1px 10px; border-radius: 999px;
   font-size: .82rem; font-weight: 700; line-height: 1.7; white-space: nowrap;
