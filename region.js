@@ -85,6 +85,10 @@
   var prefAllBtn = root.querySelector(".area-pref-all");
   var shareBtn = root.querySelector(".area-share");
   var shareMsg = root.querySelector(".area-share-msg");
+  var postBtn = root.querySelector(".area-post-x");
+  var copyPostBtn = root.querySelector(".area-post-copy");
+  var imgBtn = root.querySelector(".area-post-img");
+  var imgPanel = root.querySelector(".area-post-image");
   var cardsBox = document.getElementById("area-cards");
   var BASE_TITLE = document.title;
 
@@ -287,8 +291,10 @@
     if (area) mini.removeAttribute("hidden"); else mini.setAttribute("hidden", ""); // SVG には hidden プロパティがない
     prefAllBtn.hidden = !(area && area.muni);
     if (area) prefAllBtn.textContent = pref.name + "全体に戻る";
-    shareBtn.hidden = !area;
+    shareBtn.hidden = postBtn.hidden = copyPostBtn.hidden = !area;
+    imgBtn.hidden = !area || !window.ShareImage;
     shareMsg.textContent = "";
+    clearImage();
     changeBtn.textContent = !area ? "地域を選ぶ" : root.getAttribute("data-mode") === "pick" ? "地図を閉じる" : "地域を変える";
   }
 
@@ -405,14 +411,119 @@
     });
   });
   // URL をコピー
-  shareBtn.addEventListener("click", function () {
-    var url = location.origin + location.pathname + "?area=" + areaCode(area);
-    var show = function (msg) { shareMsg.textContent = msg + url; };
+  function areaURL() { return location.origin + location.pathname + "?area=" + areaCode(area); }
+  function copy(text, okMsg, ngMsg) {
+    var show = function (msg) { shareMsg.textContent = msg + text; };
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(url).then(function () { show("この地域を開くURLをコピーしました："); }, function () { show("このURLを共有してください："); });
+      navigator.clipboard.writeText(text).then(function () { show(okMsg); }, function () { show(ngMsg); });
     } else {
-      show("このURLを共有してください：");
+      show(ngMsg);
     }
+  }
+  shareBtn.addEventListener("click", function () {
+    copy(areaURL(), "この地域を開くURLをコピーしました：", "このURLを共有してください：");
+  });
+
+  // ---------- 投稿文（カードに出た数を、Xなどに投稿する文にする） ----------
+  // X の文字数：日本語などは1字を2、半角の英数字は1と数え、合計280まで。URL はどんな長さでも23
+  var URL_RE = /https?:\/\/\S+/g;
+  function xLength(s) {
+    var n = 0;
+    Array.from(s.replace(URL_RE, "")).forEach(function (ch) {
+      var c = ch.codePointAt(0);
+      n += c <= 0x10FF || (c >= 0x2000 && c <= 0x200D) || (c >= 0x2010 && c <= 0x201F) || (c >= 0x2032 && c <= 0x2037) ? 1 : 2;
+    });
+    return n + (s.match(URL_RE) || []).length * 23;
+  }
+  // limit を渡すと、その文字数に収まる行だけを入れる（カードの順に入れ、入らない行は飛ばす）
+  function postText(lines, limit) {
+    var head = "【" + fullName(area) + "】";
+    var foot = ["「日本を知る。」より", areaURL()];
+    var body = [];
+    var dropped = 0;
+    lines.forEach(function (l) {
+      var next = body.concat("・" + l);
+      if (limit && xLength([head].concat(next, foot).join("\n")) > limit) { dropped++; return; }
+      body = next;
+    });
+    if (!body.length) body = ["地域の情報をまとめて調べられます"];
+    return { text: [head].concat(body, foot).join("\n"), dropped: dropped };
+  }
+  // 読み込み中のカードがあるときは、まだ作らない（数が欠けた文にならないように）
+  function readyShare() {
+    var s = window.RegionCards && cardCtx ? window.RegionCards.shareLines(cardCtx) : { lines: [], items: [], waiting: 0 };
+    if (s.waiting) {
+      shareMsg.textContent = "まだ数を読み込んでいます。少し待ってから、もう一度押してください。";
+      return null;
+    }
+    return s;
+  }
+  function readyLines() { var s = readyShare(); return s && s.lines; }
+  postBtn.addEventListener("click", function () {
+    var lines = readyLines();
+    if (!lines) return;
+    var p = postText(lines, 280);
+    window.open("https://x.com/intent/post?text=" + encodeURIComponent(p.text), "_blank", "noopener,noreferrer");
+    shareMsg.textContent = "Xの投稿画面を新しいタブで開きました。内容を確かめてから投稿してください。" +
+      (p.dropped ? "\n（Xの文字数の上限に収まらない" + p.dropped + "項目は省きました。全部入りの文は「投稿文をコピー」で作れます）" : "");
+  });
+  copyPostBtn.addEventListener("click", function () {
+    var lines = readyLines();
+    if (!lines) return;
+    copy(postText(lines).text, "投稿文をコピーしました。LINE・Bluesky・Facebook などに貼り付けて使えます：\n", "下の文を選んでコピーしてください：\n");
+  });
+
+  // ---------- 画像（数をまとめた1枚。share-image.js が描く） ----------
+  var imgURL = "", imgToken = 0;
+  function clearImage() {
+    imgToken++;
+    imgPanel.hidden = true;
+    if (imgURL) { URL.revokeObjectURL(imgURL); imgURL = ""; }
+  }
+  function ymd(d, sep) {
+    return sep ? d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日"
+      : String(d.getFullYear()) + String(d.getMonth() + 101).slice(1) + String(d.getDate() + 100).slice(1);
+  }
+  imgBtn.addEventListener("click", function () {
+    var s = readyShare();
+    if (!s) return;
+    clearImage();
+    var my = imgToken;
+    var now = new Date();
+    var name = "日本を知る_" + fullName(area).replace(/\s/g, "") + "_" + ymd(now) + ".png";
+    var text = postText(s.lines, 280).text;
+    shareMsg.textContent = "画像を作っています…";
+    window.ShareImage.make({
+      title: fullName(area), pref: area.pref, items: s.items, date: ymd(now, true),
+      url: location.host + location.pathname + "?area=" + areaCode(area)
+    }).then(function (blob) {
+      if (my !== imgToken) return; // 作るあいだに地域が変わった
+      imgURL = URL.createObjectURL(blob);
+      var img = imgPanel.querySelector("img");
+      img.src = imgURL;
+      img.alt = postText(s.lines).text; // 画像に書いた内容を、読み上げでも分かるように
+      var save = imgPanel.querySelector(".area-post-save");
+      save.href = imgURL;
+      save.setAttribute("download", name);
+      // スマホなど、画像と文をいっしょにアプリへ送れる端末だけ「共有」を出す
+      var file = typeof File === "function" ? new File([blob], name, { type: "image/png" }) : null;
+      var shareImg = imgPanel.querySelector(".area-post-share");
+      shareImg.hidden = !(file && navigator.canShare && navigator.canShare({ files: [file] }));
+      shareImg.onclick = function () {
+        navigator.share({ files: [file], text: text }).catch(function () {}); // やめたときも何も出さない
+      };
+      imgPanel.hidden = false;
+      shareMsg.textContent = "画像を作りました。下の「画像を保存」で保存し、X などの投稿画面で添付してください。";
+      imgPanel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, function () {
+      if (my !== imgToken) return;
+      shareMsg.textContent = "画像を作れませんでした。ブラウザを新しくするか、別のブラウザでお試しください。";
+    });
+  });
+  imgPanel.querySelector(".area-post-close").addEventListener("click", function () {
+    clearImage();
+    shareMsg.textContent = "";
+    imgBtn.focus();
   });
 
   // ---------- カード ----------

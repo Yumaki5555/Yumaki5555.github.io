@@ -157,8 +157,15 @@
 }
 .btn-line:hover { border-color: var(--blue); background: var(--blue-tint); }
 .btn-line .ico { width: 19px; height: 19px; }
-.area-share-msg { margin: 8px 0 0; color: var(--blue-dark); font-size: .95rem; font-weight: 700; word-break: break-all; }
+.area-share-msg { margin: 8px 0 0; color: var(--blue-dark); font-size: .95rem; font-weight: 700; word-break: break-all; white-space: pre-line; }
 .area-share-msg:empty { display: none; }
+/* 数をまとめた画像（share-image.js） */
+.area-post-image { margin-top: 12px; padding: 14px; border: 1px solid var(--blue-line); border-radius: 12px; background: var(--bg-sub); max-width: 760px; }
+.area-post-image[hidden] { display: none; }
+.area-post-image img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.area-post-image-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.area-post-image-actions .btn-line { text-decoration: none; }
+.area-post-image-note { margin: 10px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.7; }
 #area-cards { margin-top: 20px; }
 .area-fallback { margin: 0; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-sub); }
 @media (max-width: 639px) {

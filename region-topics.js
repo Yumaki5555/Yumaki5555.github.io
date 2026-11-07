@@ -198,7 +198,9 @@
   // link(a)  … データを読まずに決められるリンク { href, scope, text }
   // resolve(a) … データを読んで { stat, href?, scope?, text? } を返す（なければ数値は出さない）
   //   stat … { value: 大きく出す文, extra: 数値の意味が分かる補足を1行（同じ条件で比べられるときだけ。なくてもよい）,
-  //            sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし） }
+  //            sub: 数値の内わけ（なくてもよい）, note: 集計時点・対象範囲, state: STATE のどれか（ふつうの数値ならなし）,
+  //            share: 投稿文の1行（なければ「分野名 数値」で自動に作る）,
+  //            img: 画像のマスに書く { label, value, note } のうち変えたいものだけ（なければ 分野名・value・sub） }
   // guide(a) … 「まず3分で知る」「図で知る」の補助リンク { label, href, site }（実際にある解説だけ。なくてもよい）
   // operator … ほかの方のサイトのとき、sites.js の id（運営者の名前と X を、分野名の下に出す）
   // plain  … 数を出さないカード（数値の段を作らず、要点をその分だけ上に詰める。ボタンの高さは隣とそろう）
@@ -258,6 +260,8 @@
           return {
             stat: {
               value: num(d.total) + "<small>人</small>",
+              share: "在留外国人 " + num(d.total) + "人" + (w ? "（" + w[1] + "年" + (+w[2]) + "月末）" : ""),
+              img: { note: [w ? w[1] + "年" + (+w[2]) + "月末時点" : "", top3 ? "多い国籍：" + top3 : ""].filter(Boolean).join("。") },
               extra: extra,
               sub: top3 ? "多い国籍：" + top3 : "",
               note: (w ? w[1] + "年" + (+w[2]) + "月末時点。" : "") + "出典：出入国在留管理庁「在留外国人統計」"
@@ -309,7 +313,7 @@
             });
             var note = date + "。" + (unknown ? "住所から市区町村が分からない学校（" + pname(a) + "で" + num(unknown) + "校）は数に入っていません。" : "");
             if (!total && unknown) return { stat: { state: "unconfirmed", value: "見つかっていません", note: note } };
-            if (!total) return { stat: { state: "zero", value: "0<small>校</small>", note: note } };
+            if (!total) return { stat: { state: "zero", value: "0<small>校</small>", img: { label: "日本語学校・大学等・専門学校" }, note: note } };
             return { stat: { rows: rows(c), note: note } };
           });
         });
@@ -343,9 +347,9 @@
             .map(function (k) { return k + " " + c[k]; }).join("・");
           var when = "サイトが調べた施設の一覧" + (M.updated ? "（" + jdate(M.updated) + "更新）" : "") + "で数えています。";
           if (!main && !others) {
-            return { stat: { state: "zero", value: "0<small>か所</small>", note: "サイトが調べた範囲では見つかっていません。" + when } };
+            return { stat: { state: "zero", value: "0<small>か所</small>", img: { label: "モスク・礼拝所" }, note: "サイトが調べた範囲では見つかっていません。" + when } };
           }
-          return { stat: { value: "モスク・礼拝所 " + num(main) + "<small>か所</small>", sub: others ? "ほかに " + others : "", note: when } };
+          return { stat: { value: "モスク・礼拝所 " + num(main) + "<small>か所</small>", img: { label: "モスク・礼拝所", value: num(main) + "か所" }, sub: others ? "ほかに " + others : "", note: when } };
         });
       }
     },
@@ -475,6 +479,9 @@
           return {
             stat: {
               value: yen(pick.x.a),
+              // 投稿でも「確認できた関連事業の合計」であることと年度を落とさない
+              share: "多文化共生の関連事業 " + yen(pick.x.a) + "（" + pick.fy + "年度" + pick.st + "・確認できた分）",
+              img: { label: "多文化共生の関連事業", note: pick.fy + "年度" + pick.st + "のうち、確認できた分の合計" },
               extra: extra,
               // 予算（当初・補正後）と決算を取りちがえないよう、どれの合計かを必ず書く。関連予算をすべて把握したようには書かない
               note: pick.fy + "年度" + pick.st + "のうち、公式資料で確認できた関連事業の合計" +
@@ -537,6 +544,9 @@
             return {
               state: !m.signed_total && !m.planned ? "zero" : undefined,
               value: (L.valid_confirmed || "有効確認") + " " + num(m.valid_confirmed) + "<small>件</small>",
+              // 投稿でも未確認・終了の件数を必ず添える（「有効確認 0件」だけだと協定がないように読まれる）
+              share: "MOU・海外との協定 " + (L.valid_confirmed || "有効確認") + " " + num(m.valid_confirmed) + "件" + (sub ? "（" + sub + "）" : ""),
+              img: { label: "MOU・協定（" + (L.valid_confirmed || "有効確認") + "）", value: num(m.valid_confirmed) + "件" },
               sub: sub,
               note: note + when
             };
@@ -653,6 +663,7 @@
             res.stat = {
               state: cc.n ? undefined : "zero",
               value: "募集中 " + num(cc.n) + "<small>件</small>",
+              img: { label: "パブコメ（募集中）", value: num(cc.n) + "件" },
               extra: nextLine(cc),
               sub: "ほかに " + [prefTxt, natTxt].filter(Boolean).join("・"),
               note: "締切を過ぎた案件は数えません。" + when
@@ -666,6 +677,7 @@
             stat: {
               state: pc.n ? undefined : "zero",
               value: "募集中 " + num(pc.n) + "<small>件</small>",
+              img: { label: "パブコメ（募集中）", value: num(pc.n) + "件" },
               extra: nextLine(pc),
               sub: natTxt ? "ほかに " + natTxt : "",
               note: "締切を過ぎた案件は数えません。" + when
@@ -696,6 +708,7 @@
             stat: {
               state: n ? undefined : "zero",
               value: pname(a) + "に関係 " + num(n) + "<small>件</small>",
+              img: { label: "署名（" + pname(a) + "に関係）", value: num(n) + "件" },
               sub: "地域の書かれていない署名（全国向けなど）" + num(none) + "件",
               note: jdate(D.updated) + "時点で掲載中の署名（地域はタイトルと提出先から判定）。"
             }
@@ -816,12 +829,41 @@
     note.textContent = st.note || "";
   }
 
+  // 投稿文の1行：数がはっきり出たカードだけ（「確認済みで0件」は入れる）。
+  // 未調査・対象外・掲載なし・取得失敗は入れない（投稿だけを見た人に「0件」と読まれないように）
+  function shareLine(t, st) {
+    if (!st || st.pages || (st.state && st.state !== "zero")) return "";
+    if (st.share) return st.share;
+    if (st.rows) return st.rows.map(function (r) { return r.label + " " + num(r.n) + "校"; }).join("・");
+    var v = plain(st.value);
+    return v.indexOf(t.title) === 0 ? v : t.title + " " + v; // 「モスク・礼拝所 3か所」のように分野名で始まるときは重ねない
+  }
+  function plain(html) { return String(html).replace(/<[^>]*>/g, ""); }
+  // 画像の1マス { label: 見出し, value: 大きく出す数, note: 補足 }。入れるカードは投稿文と同じ
+  function shareItem(t, st) {
+    if (!shareLine(t, st)) return null;
+    var it = st.rows
+      ? { label: st.rows[0].label, value: num(st.rows[0].n) + "校", note: st.rows.slice(1).map(function (r) { return r.label + " " + num(r.n) + "校"; }).join("・") }
+      : { label: t.title, value: plain(st.value), note: st.sub || "" };
+    if (st.img) Object.keys(st.img).forEach(function (k) { it[k] = st.img[k]; });
+    return it;
+  }
+
   var token = 0;
   window.RegionCards = {
     // prefByCode：都道府県コード → { name }
     init: function (box, prefByCode) { P = prefByCode; return { box: box }; },
+    // 投稿文に使う行（カードの順）と、まだ読み込み中のカードの数
+    shareLines: function (c) {
+      var lines = TOPICS.map(function (t) { return c.lines && c.lines[t.id]; }).filter(Boolean);
+      var items = TOPICS.map(function (t) { return c.items && c.items[t.id]; }).filter(Boolean);
+      return { lines: lines, items: items, waiting: c.waiting || 0 };
+    },
     render: function (c, a) {
       var my = ++token;
+      c.lines = {};
+      c.items = {};
+      c.waiting = 0;
       c.box.innerHTML = GROUPS.map(function (g) {
         return '<section class="topic-group topic-group-' + g.id + '" aria-labelledby="tg-' + g.id + '">' +
           '<h3 class="topic-group-title" id="tg-' + g.id + '"><span class="tg-mark" aria-hidden="true">' + g.mark + "</span>" + esc(g.title) + "</h3>" +
@@ -857,12 +899,17 @@
           return;
         }
         li.querySelector(".topic-value").innerHTML = '<span class="topic-value-loading">読み込み中…</span>';
+        c.waiting++;
         t.resolve(a).then(function (r) {
           if (my !== token) return;
+          c.waiting--;
+          c.lines[t.id] = shareLine(t, r.stat);
+          c.items[t.id] = shareItem(t, r.stat);
           setLink(li, r.href ? { href: r.href, scope: r.scope, text: r.text } : { href: base.href, scope: base.scope, text: base.text });
           setStat(li, r.stat || null, "数値はリンク先で確認してください。");
         }, function () {
           if (my !== token) return;
+          c.waiting--;
           // 読めなかったとき：数値は出さず「取得失敗」と書く。リンクはデータに頼らない形のまま残す
           setLink(li, { href: base.href, scope: base.scope, text: base.text });
           setStat(li, { state: "error", value: "読み込めませんでした", note: "時間をおいて、ページを読み込み直してください（0件という意味ではありません）。" });
