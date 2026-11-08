@@ -602,7 +602,7 @@
         return (a.muni ? n + "・" + pname(a) : n) + "では今、どんな意見を募集中？";
       },
       see: "国や自治体の案に意見を出せる案件を、締切が近い順に見る",
-      // 市区町村は105市区だけ。対象かどうかはデータを読まないと分からないので、読むまでは都道府県のページ
+      // 市区町村は政令市・中核市・23区・人口20万人以上の市だけ。対象かどうかはデータを読まないと分からないので、読むまでは都道府県のページ
       link: function (a) {
         var href = GH + "pubcome/pref/?pref=" + encodeURIComponent(pname(a));
         if (a.muni) return { href: href, scope: "wider", text: pname(a) + "の募集が開きます（" + a.muni.name + "が収集対象か確認できていません）", pending: true };
@@ -641,15 +641,20 @@
           if (a.muni) {
             var co = CD.officials.find(function (o) { return o.name === a.muni.name && o.pref === pn; });
             if (!co) {
-              return {
+              // 集める対象の人口だが、ホームページの作りの都合で自動では集められない市（パブコメ掲示板の areas.json の unsupported）
+              var un = (CD.unsupported || []).find(function (u) { return u.name === a.muni.name && u.pref === pn; });
+              var out = {
                 href: base + "pref/?pref=" + encodeURIComponent(pn), scope: "wider",
                 text: pn + "の募集が開きます",
                 stat: {
-                  state: "outside", value: a.muni.name + "は対象外",
+                  state: "outside", value: a.muni.name + (un ? "は自動で集められず" : "は対象外"),
                   sub: "募集中：" + [prefTxt, natTxt].filter(Boolean).join("・"),
-                  note: "市区町村は政令市・中核市・東京23区の105市区だけを集めています。"
+                  note: un ? a.muni.name + "は、" + un.why + "。"
+                    : "市区町村は" + (CD.scope || "政令市・中核市・東京23区") + "の" + num(CD.officials.length) + "市区だけを集めています。"
                 }
               };
+              if (un) out.stat.more = { text: a.muni.name + "の公式ページを見る", href: un.url, other: true };
+              return out;
             }
             var res = {
               href: base + "city/?pref=" + encodeURIComponent(pn) + "&city=" + encodeURIComponent(a.muni.name),
@@ -797,7 +802,8 @@
       return;
     }
     // 数値の欄に「〇〇県の協定を見る」などの案内を出すときは、同じ行き先を言う「開くページ」の行は省く
-    li.querySelector(".topic-scope").hidden = !!st.more;
+    // （more.other＝ボタンとは別の行き先のときは省かない）
+    li.querySelector(".topic-scope").hidden = !!st.more && !st.more.other;
     // 「確認済みで0件」「取得失敗」の印だけ出す（「未調査」「対象外」などは数値の欄の言葉で分かるので、印を重ねない）
     var tag = st.state === "zero" || st.state === "error";
     if (st.pages) {
